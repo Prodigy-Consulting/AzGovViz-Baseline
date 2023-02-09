@@ -4,6 +4,158 @@
 
 ### AzGovViz version 6
 
+__Changes__ (2023-Feb-03 / Major)
+
+* Update 'Orphaned Resources' feature
+  * subscriptions in a tenant can have varying currency / output 'cost savings' per currency
+* Update 'Storage Account Analysis' feature
+  * add 'Used Capacity' metric
+* Fix 'Network - Virtual Network Peerings' feature CSV output
+  * join Address prefixes
+  * join DNS Servers
+* Fix 'PIM Eligibility' feature
+  * orphaned subscription scopes may be returned as PIM onboarded scopes, skip subscriptions that have not been returned from the initial list subscriptions call
+* Fix 'Azure Landing Zones Policy Version Checker' feature
+  * deprecated ALZ policy/set resolve to state 'deprecated'
+* Export Resource Locks details as CSV
+
+__Changes__ (2023-Feb-01 / Major)
+
+* Update 'Orphaned Resources' feature
+  * change intent for `microsoft.web/serverfarms` from 'clean up' to 'cost savings'
+  * update orphaned disks query according to [github.com/dolevshor/azure-orphan-resources PR#5](https://github.com/dolevshor/azure-orphan-resources/pull/5/files) - thanks @eklime
+
+__Changes__ (2023-Jan-24 / Major)
+
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.68
+  * fix issue for Private DNS Zone resource diagnostics capability check
+
+__Changes__ (2023-Jan-19 / Major)
+
+* Cover Preview [Azure Storage Account with Azure DNS zone endpoints](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview#azure-dns-zone-endpoints-preview) ([Issue #164](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/issues/164))
+* Add feature to simulate Management Group Hierarchy Map
+ * New parameter `-HierarchyMapOnlyCustomData` (documentation update pending)
+* Private Endpoint feature - add Microsoft tenants (cross tenant PE) (`-MSTenantIds`)
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.67
+
+__Changes__ (2023-Jan-06 / Major)
+
+* Fix issue PIM eligibility (do not process out-of-scope subscriptions) [issue #161](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/issues/161)
+* Collect Advisor Scores foreach subscription
+* Update DailySummary
+  * Add count of subscriptions per quotaId
+  * Add 'Microsoft Defender for Cloud' Secure Score for Management Groups
+* Updated [API reference](#api-reference)
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.65
+
+__Changes__ (2023-Jan-03 / Major)
+
+* Fix issue for Private Endpoints feature
+  * Subscription may not be registered for location / skip
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.64
+* Add ShowMemoryUsage at creation of __DefinitionInsights__
+
+__Changes__ (2022-Dec-29 / Major)
+
+* Fix issue for Private Endpoints feature
+
+__Changes__ (2022-Dec-28 / Major)
+
+* Instead of trying to get full properties of all resource types only approach available Private Endpoint resource types
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.63
+  * Optimize error output for unknown convertFrom-JSON errors
+* Updated [API reference](#api-reference)
+* &#128640; By the way - checkout the updated 'well performing' [__Az__`Alias`__Advertizer__](https://www.azadvertizer.net/azpolicyaliasesadvertizer_singlelines.html)
+* Fix: lock-in the synchrsonized hashTable `htResourcePropertiesConvertfromJSONFailed` in dataCollectionFunctions foreach parallel loop
+
+__Changes__ (2022-Dec-22 / Major)
+
+* Fix issue for Private Endpoints feature
+* Add reference for Microsoft Defender for Cloud security alerts on AzGovViz activity - [Security](#security)
+* Fix for migrated Subscriptions. In rare cases a subscription that was migrated to another tenant may still be returned from the [Entities ARM API](https://learn.microsoft.com/en-us/rest/api/managementgroups/entities/list), but not from the [Subscriptions ARM API](https://learn.microsoft.com/en-us/rest/api/resources/subscriptions/list) - if that is the case then these subscriptions will be added to the out-of-scope subscriptions collection
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.62
+  * Fix issue [155](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/issues/155) AzureChinaCloud
+* Minor optimizations 
+  * Using parameter `-ManagementGroupsOnly`
+  * Using parameter `-HierarchyMapOnly`
+  * Overall script optimizations
+
+__Changes__ (2022-Dec-13 / Major)
+
+* Fix for sovereign clouds - replace hardcoded ARM endpoint uri with dynamic ([issue #155](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/issues/155))
+* Update Azure Devops Pipeline YAML
+  * Add `microsoft.chaos/chaosexperiments`to `-ExcludedResourceTypesDiagnosticsCapableParameters` parameter defaults
+
+__Changes__ (2022-Dec-12 / Major)
+
+* Pausing 'PSRule for Azure' integration. AzGovViz leveraged the Invoke-PSRule cmdlet, but there are certain [resource types](https://github.com/Azure/PSRule.Rules.Azure/blob/ab0910359c1b9826d8134041d5ca997f6195fc58/src/PSRule.Rules.Azure/PSRule.Rules.Azure.psm1#L1582) where also child resources need to be queried to achieve full rule evaluation. 
+* Enhance Private Endpoints feature / cross tenant PE
+* Fix for migrated Subscriptions. In rare cases a subscription that was migrated to another tenant may still be returned from the [ARM API](https://learn.microsoft.com/en-us/rest/api/resources/subscriptions/list), if that is the case then these subscriptions will be added to the out-of-scope subscriptions collection
+* Update Azure Devops Pipeline YAML
+  * Enhance error handling if Management Group Id containing spaces is provided - thanks @cbezenco
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.59
+
+__Changes__ (2022-Dec-07 / Major)
+
+* Minor change on Storage Account Access Analyisis feature HTML
+
+__Changes__ (2022-Dec-04 / Major)
+
+* PSRule for Azure fix | Get resources using ARM API inside Foreach-Object -parallel loop
+* Private Endpoints 
+  * fix resource identification
+  * add cross tenant detection
+* Storage Account Access Analysis - add insights on 'Allowed Copy Scope' and 'Allow Cross Tenant Replication'
+* Updated [API reference](#api-reference)
+* Cosmetics
+* Bugfixes
+
+__Changes__ (2022-Nov-29 / Major)
+
+* Network analysis - fix TenantSummary info if feature is disabled (`-NoNetwork`)
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.55
+* Updated TenantSummary screenshot issue #148
+
+__Changes__ (2022-Nov-28 / Major)
+
+* Network analysis - fix Private Endpoints feature
+  * Handle manual manualPrivateLinkServiceConnections
+* Update parameter `-ExcludedResourceTypesDiagnosticsCapable` default with `microsoft.chaos/chaosexperiments`
+
+__Changes__ (2022-Nov-21 / Major)
+
+* Network analysis - new features
+  * Subnets
+    * new parameter `-NetworkSubnetIPAddressUsageCriticalPercentage` warning level when certain percentage of IP addresses is used (default = 90%). Kudos to @ElanShudnow [AzSubnetAvailability - GitHub](https://github.com/ElanShudnow/AzureCode/tree/main/PowerShell/AzSubnetAvailability)
+  * Private Endpoints
+* Enhance Network feature - Virtual Networks and Virtual Network Peerings
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.54
+  * another retry mechanism fix 
+* Bugfix PIM eligible / Guest User - thanks @nanigan
+* Updated [API reference](#api-reference)
+
+__Changes__ (2022-Nov-18 / Major)
+
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.53
+  * retry mechanism fix 
+
+__Changes__ (2022-Nov-17 / Major)
+
+* Update Azure DevOps pipeline YAML 
+  * checkout `fetchDepth: 1`  
+[Azure DevOps pipelines shallow fetch =1 is now default](https://dev.to/kkazala/azure-devops-pipelines-shallow-fetch-1-is-now-default-4656)
+  * pool `vmImage: 'ubuntu-22.04'`
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.52
+  * retry mechanism fix 
+
+__Changes__ (2022-Nov-13 / Major)
+
+* Network analysis - VNet peerings detect cross tenant peering -> triggered by @TimWanierke, thanks!
+* Updated Storage Account Analysis to handle error 'AuthorizationPermissionMismatch'
+* Updated orphaned resources query for punlic IP addressen following the source repository [Azure Orphan Resources - GitHub](https://github.com/dolevshor/azure-orphan-resources/commit/52ea4f12626f62338f5c354a74bf429c1244c382)
+* Use [AzAPICall](https://aka.ms/AzAPICall) PowerShell module version 1.1.50
+* Update __[Contribution Guide](contributionGuide.md)__
+
 __Changes__ (2022-Nov-01 / Minor)
 
 * Updated Storage Account analysis to handle permission issues on databricks storage accounts

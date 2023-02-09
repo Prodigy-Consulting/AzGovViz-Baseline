@@ -1,10 +1,9 @@
 function processStorageAccountAnalysis {
-    $start = get-date
-    Write-Host "Processing Storage Account Analysis"
-    $storageAccountscount = $storageAccounts.count
-    if ($storageAccountscount -gt 0) {
-        Write-Host " Executing Storage Account Analysis for $storageAccountscount Storage Accounts"
-        $script:arrayStorageAccountAnalysisResults = [System.Collections.ArrayList]::Synchronized((New-Object System.Collections.ArrayList))
+    $start = Get-Date
+    Write-Host 'Processing Storage Account Analysis'
+    $storageAccountsCount = $storageAccounts.count
+    if ($storageAccountsCount -gt 0) {
+        Write-Host " Executing Storage Account Analysis for $storageAccountsCount Storage Accounts"
         createBearerToken -AzAPICallConfiguration $azapicallconf -targetEndPoint 'Storage'
 
         $storageAccounts | ForEach-Object -Parallel {
@@ -25,102 +24,106 @@ function processStorageAccountAnalysis {
             $staticWebsitesState = 'n/a'
             $webSiteResponds = 'n/a'
 
-            $subscriptionId = ($storageAccount.id -split '/')[2]
-            $resourceGroupName = ($storageAccount.id -split '/')[4]
+            $subscriptionId = ($storageAccount.SA.id -split '/')[2]
+            $resourceGroupName = ($storageAccount.SA.id -split '/')[4]
             $subDetails = $htAllSubscriptionsFromAPI.($subscriptionId).subDetails
 
-            Write-Host "Processing SA; Subscription: $($subDetails.displayName) ($subscriptionId) [$($subDetails.subscriptionPolicies.quotaId)] - Storage Account: $($storageAccount.name)"
+            Write-Host "Processing Storage Account '$($storageAccount.SA.name)' - Subscription: '$($subDetails.displayName)' ($subscriptionId) [$($subDetails.subscriptionPolicies.quotaId)]"
 
-            if ($storageAccount.Properties.primaryEndpoints.blob) {
+            if ($storageAccount.SA.Properties.primaryEndpoints.blob) {
 
-                $urlServiceProps = "$($storageAccount.Properties.primaryEndpoints.blob)?restype=service&comp=properties"
-                $saProperties = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $urlServiceProps -method 'GET' -listenOn 'Content' -currentTask "$($storageAccount.name) get restype=service&comp=properties" -saResourceGroupName $resourceGroupName
-                if ($saProperties -eq 'AuthorizationFailure' -or $saProperties -eq 'AuthorizationPermissionDenied' -or $saProperties -eq 'ResourceUnavailable' -or $saProperties -eq 'AuthorizationPermissionMismatch' ) {
-                    if ($saProperties -eq 'ResourceUnavailable') {
-                        $staticWebsitesState = $saProperties
-                    }
-                }
-                else {
-                    try {
-                        $xmlSaProperties = [xml]([string]$saProperties -replace $saProperties.Substring(0, 3))
-                        if ($xmlSaProperties.StorageServiceProperties.StaticWebsite) {
-                            if ($xmlSaProperties.StorageServiceProperties.StaticWebsite.Enabled -eq $true) {
-                                $staticWebsitesState = $true
-                            }
-                            else {
-                                $staticWebsitesState = $false
-                            }
+                $urlServiceProps = "$($storageAccount.SA.Properties.primaryEndpoints.blob)?restype=service&comp=properties"
+                $saProperties = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $urlServiceProps -method 'GET' -listenOn 'Content' -currentTask "$($storageAccount.SA.name) get restype=service&comp=properties" -saResourceGroupName $resourceGroupName -unhandledErrorAction Continue
+                if ($saProperties) {
+                    if ($saProperties -eq 'AuthorizationFailure' -or $saProperties -eq 'AuthorizationPermissionDenied' -or $saProperties -eq 'ResourceUnavailable' -or $saProperties -eq 'AuthorizationPermissionMismatch' ) {
+                        if ($saProperties -eq 'ResourceUnavailable') {
+                            $staticWebsitesState = $saProperties
                         }
-                    }
-                    catch {
-                        Write-Host "XMLSAPropertiesFailed: Subscription: $($subDetails.displayName) ($subscriptionId) - Storage Account: $($storageAccount.name)"
-                        Write-Host $($saProperties.ForEach({[char]$_}) -join '') -ForegroundColor Cyan
-                    }
-                }
-
-                $urlCompList = "$($storageAccount.Properties.primaryEndpoints.blob)?comp=list"
-                $listContainers = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $urlCompList -method 'GET' -listenOn 'Content' -currentTask "$($storageAccount.name) get comp=list"
-                if ($listContainers -eq 'AuthorizationFailure' -or $listContainers -eq 'AuthorizationPermissionDenied' -or $listContainers -eq 'ResourceUnavailable' -or $listContainers -eq 'AuthorizationPermissionMismatch') {
-                    if ($listContainers -eq 'ResourceUnavailable') {
-                        $listContainersSuccess = $listContainers
                     }
                     else {
-                        $listContainersSuccess = $false
-                    }
-                }
-                else {
-                    $listContainersSuccess = $true
-                }
-
-                if ($listContainersSuccess -eq $true) {
-                    $xmlListContainers = [xml]([string]$listContainers -replace $listContainers.Substring(0, 3))
-                    $containersCount = $xmlListContainers.EnumerationResults.Containers.Container.Count
-
-                    foreach ($container in $xmlListContainers.EnumerationResults.Containers.Container) {
-                        $arrayContainers += $container.Name
-                        if ($container.Name -eq '$web' -and $staticWebsitesState) {
-                            if ($storageAccount.properties.primaryEndpoints.web) {
-                                try {
-                                    $testStaticWebsiteResponse = Invoke-WebRequest -Uri $storageAccount.properties.primaryEndpoints.web -Method 'HEAD'
-                                    $webSiteResponds = $true
+                        try {
+                            $xmlSaProperties = [xml]([string]$saProperties -replace $saProperties.Substring(0, 3))
+                            if ($xmlSaProperties.StorageServiceProperties.StaticWebsite) {
+                                if ($xmlSaProperties.StorageServiceProperties.StaticWebsite.Enabled -eq $true) {
+                                    $staticWebsitesState = $true
                                 }
-                                catch {
-                                    $webSiteResponds = $false
+                                else {
+                                    $staticWebsitesState = $false
                                 }
                             }
                         }
+                        catch {
+                            Write-Host "XMLSAPropertiesFailed: Subscription: $($subDetails.displayName) ($subscriptionId) - Storage Account: $($storageAccount.SA.name)"
+                            Write-Host $($saProperties.ForEach({ [char]$_ }) -join '') -ForegroundColor Cyan
+                        }
+                    }
+                }
 
-                        if ($container.Properties.PublicAccess) {
-                            if ($container.Properties.PublicAccess -eq 'blob') {
-                                $arrayContainersAnonymousBlob += $container.Name
+                $urlCompList = "$($storageAccount.SA.Properties.primaryEndpoints.blob)?comp=list"
+                $listContainers = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $urlCompList -method 'GET' -listenOn 'Content' -currentTask "$($storageAccount.SA.name) get comp=list" -unhandledErrorAction Continue
+                if ($listContainers) {
+                    if ($listContainers -eq 'AuthorizationFailure' -or $listContainers -eq 'AuthorizationPermissionDenied' -or $listContainers -eq 'ResourceUnavailable' -or $listContainers -eq 'AuthorizationPermissionMismatch') {
+                        if ($listContainers -eq 'ResourceUnavailable') {
+                            $listContainersSuccess = $listContainers
+                        }
+                        else {
+                            $listContainersSuccess = $false
+                        }
+                    }
+                    else {
+                        $listContainersSuccess = $true
+                    }
+
+                    if ($listContainersSuccess -eq $true) {
+                        $xmlListContainers = [xml]([string]$listContainers -replace $listContainers.Substring(0, 3))
+                        $containersCount = $xmlListContainers.EnumerationResults.Containers.Container.Count
+
+                        foreach ($container in $xmlListContainers.EnumerationResults.Containers.Container) {
+                            $arrayContainers += $container.Name
+                            if ($container.Name -eq '$web' -and $staticWebsitesState) {
+                                if ($storageAccount.SA.properties.primaryEndpoints.web) {
+                                    try {
+                                        $testStaticWebsiteResponse = Invoke-WebRequest -Uri $storageAccount.SA.properties.primaryEndpoints.web -Method 'HEAD'
+                                        $webSiteResponds = $true
+                                    }
+                                    catch {
+                                        $webSiteResponds = $false
+                                    }
+                                }
                             }
-                            if ($container.Properties.PublicAccess -eq 'container') {
-                                $arrayContainersAnonymousContainer += $container.Name
+
+                            if ($container.Properties.PublicAccess) {
+                                if ($container.Properties.PublicAccess -eq 'blob') {
+                                    $arrayContainersAnonymousBlob += $container.Name
+                                }
+                                if ($container.Properties.PublicAccess -eq 'container') {
+                                    $arrayContainersAnonymousContainer += $container.Name
+                                }
                             }
                         }
                     }
                 }
             }
 
-            $allowSharedKeyAccess = $storageAccount.properties.allowSharedKeyAccess
-            if ([string]::IsNullOrWhiteSpace($storageAccount.properties.allowSharedKeyAccess)) {
+            $allowSharedKeyAccess = $storageAccount.SA.properties.allowSharedKeyAccess
+            if ([string]::IsNullOrWhiteSpace($storageAccount.SA.properties.allowSharedKeyAccess)) {
                 $allowSharedKeyAccess = 'likely True'
             }
-            $requireInfrastructureEncryption = $storageAccount.properties.encryption.requireInfrastructureEncryption
-            if ([string]::IsNullOrWhiteSpace($storageAccount.properties.encryption.requireInfrastructureEncryption)) {
+            $requireInfrastructureEncryption = $storageAccount.SA.properties.encryption.requireInfrastructureEncryption
+            if ([string]::IsNullOrWhiteSpace($storageAccount.SA.properties.encryption.requireInfrastructureEncryption)) {
                 $requireInfrastructureEncryption = 'likely False'
             }
 
             $arrayResourceAccessRules = [System.Collections.ArrayList]@()
-            if ($storageAccount.properties.networkAcls.resourceAccessRules) {
-                if ($storageAccount.properties.networkAcls.resourceAccessRules.count -gt 0) {
-                    foreach ($resourceAccessRule in $storageAccount.properties.networkAcls.resourceAccessRules) {
+            if ($storageAccount.SA.properties.networkAcls.resourceAccessRules) {
+                if ($storageAccount.SA.properties.networkAcls.resourceAccessRules.count -gt 0) {
+                    foreach ($resourceAccessRule in $storageAccount.SA.properties.networkAcls.resourceAccessRules) {
 
                         $resourceAccessRuleResourceIdSplitted = $resourceAccessRule.resourceId -split '/'
                         $resourceType = "$($resourceAccessRuleResourceIdSplitted[6])/$($resourceAccessRuleResourceIdSplitted[7])"
 
                         [regex]$regex = '\*+'
-                        $resourceAccessRule.resourceId
+                        #$resourceAccessRule.resourceId
                         switch ($regex.matches($resourceAccessRule.resourceId).count) {
                             { $_ -eq 1 } {
                                 $null = $arrayResourceAccessRules.Add([PSCustomObject]@{
@@ -181,29 +184,55 @@ function processStorageAccountAnalysis {
                 $resourceAccessRules = $ht | ConvertTo-Json
             }
 
-            if ([string]::IsNullOrWhiteSpace($storageAccount.properties.publicNetworkAccess)) {
-                $publicNetworkAccess = 'likely enabled'
+            if ([string]::IsNullOrWhiteSpace($storageAccount.SA.properties.publicNetworkAccess)) {
+                $publicNetworkAccess = 'likely Enabled'
             }
             else {
-                $publicNetworkAccess = $storageAccount.properties.publicNetworkAccess
+                $publicNetworkAccess = $storageAccount.SA.properties.publicNetworkAccess
+            }
+
+            if ([string]::IsNullOrWhiteSpace($storageAccount.SA.properties.allowedCopyScope)) {
+                $allowedCopyScope = 'From any Storage Account'
+            }
+            else {
+                $allowedCopyScope = $storageAccount.SA.properties.allowedCopyScope
+            }
+
+            if ([string]::IsNullOrWhiteSpace($storageAccount.SA.properties.allowCrossTenantReplication)) {
+                if ($allowedCopyScope -ne 'From any Storage Account') {
+                    $allowCrossTenantReplication = "likely False (allowedCopyScope=$allowedCopyScope)"
+                }
+                else {
+                    $allowCrossTenantReplication = 'likely True'
+                }
+            }
+            else {
+                $allowCrossTenantReplication = $storageAccount.SA.properties.allowCrossTenantReplication
+            }
+
+            if ($storageAccount.SA.properties.dnsEndpointType) {
+                $dnsEndpointType = $storageAccount.SA.properties.dnsEndpointType
+            }
+            else {
+                $dnsEndpointType = 'standard'
             }
 
             $temp = [System.Collections.ArrayList]@()
             $null = $temp.Add([PSCustomObject]@{
-                    storageAccount                    = $storageAccount.name
-                    kind                              = $storageAccount.kind
-                    skuName                           = $storageAccount.sku.name
-                    skuTier                           = $storageAccount.sku.tier
-                    location                          = $storageAccount.location
-                    creationTime                      = $storageAccount.properties.creationTime
-                    allowBlobPublicAccess             = $storageAccount.properties.allowBlobPublicAccess
+                    storageAccount                    = $storageAccount.SA.name
+                    kind                              = $storageAccount.SA.kind
+                    skuName                           = $storageAccount.SA.sku.name
+                    skuTier                           = $storageAccount.SA.sku.tier
+                    location                          = $storageAccount.SA.location
+                    creationTime                      = $storageAccount.SA.properties.creationTime
+                    allowBlobPublicAccess             = $storageAccount.SA.properties.allowBlobPublicAccess
                     publicNetworkAccess               = $publicNetworkAccess
                     SubscriptionId                    = $subscriptionId
                     SubscriptionName                  = $subDetails.displayName
                     subscriptionQuotaId               = $subDetails.subscriptionPolicies.quotaId
                     subscriptionMGPath                = $htSubscriptionsMgPath.($subscriptionId).path -join '/'
                     resourceGroup                     = $resourceGroupName
-                    networkAclsdefaultAction          = $storageAccount.properties.networkAcls.defaultAction
+                    networkAclsdefaultAction          = $storageAccount.SA.properties.networkAcls.defaultAction
                     staticWebsitesState               = $staticWebsitesState
                     staticWebsitesResponse            = $webSiteResponds
                     containersCanBeListed             = $listContainersSuccess
@@ -213,17 +242,21 @@ function processStorageAccountAnalysis {
                     containersAnonymousContainer      = $arrayContainersAnonymousContainer -join "$CSVDelimiterOpposite "
                     containersAnonymousBlobCount      = $arrayContainersAnonymousBlob.Count
                     containersAnonymousBlob           = $arrayContainersAnonymousBlob -join "$CSVDelimiterOpposite "
-                    ipRulesCount                      = $storageAccount.properties.networkAcls.ipRules.Count
-                    ipRulesIPAddressList              = ($storageAccount.properties.networkAcls.ipRules.value | Sort-Object) -join "$CSVDelimiterOpposite "
-                    virtualNetworkRulesCount          = $storageAccount.properties.networkAcls.virtualNetworkRules.Count
-                    virtualNetworkRulesList           = ($storageAccount.properties.networkAcls.virtualNetworkRules.Id | Sort-Object) -join "$CSVDelimiterOpposite "
+                    ipRulesCount                      = $storageAccount.SA.properties.networkAcls.ipRules.Count
+                    ipRulesIPAddressList              = ($storageAccount.SA.properties.networkAcls.ipRules.value | Sort-Object) -join "$CSVDelimiterOpposite "
+                    virtualNetworkRulesCount          = $storageAccount.SA.properties.networkAcls.virtualNetworkRules.Count
+                    virtualNetworkRulesList           = ($storageAccount.SA.properties.networkAcls.virtualNetworkRules.Id | Sort-Object) -join "$CSVDelimiterOpposite "
                     resourceAccessRulesCount          = $resourceAccessRulesCount
                     resourceAccessRules               = $resourceAccessRules
-                    bypass                            = ($storageAccount.properties.networkAcls.bypass | Sort-Object) -join "$CSVDelimiterOpposite "
-                    supportsHttpsTrafficOnly          = $storageAccount.properties.supportsHttpsTrafficOnly
-                    minimumTlsVersion                 = $storageAccount.properties.minimumTlsVersion
+                    bypass                            = ($storageAccount.SA.properties.networkAcls.bypass | Sort-Object) -join "$CSVDelimiterOpposite "
+                    supportsHttpsTrafficOnly          = $storageAccount.SA.properties.supportsHttpsTrafficOnly
+                    minimumTlsVersion                 = $storageAccount.SA.properties.minimumTlsVersion
                     allowSharedKeyAccess              = $allowSharedKeyAccess
                     requireInfrastructureEncryption   = $requireInfrastructureEncryption
+                    allowedCopyScope                  = $allowedCopyScope
+                    allowCrossTenantReplication       = $allowCrossTenantReplication
+                    dnsEndpointType                   = $dnsEndpointType
+                    usedCapacity                      = $storageAccount.SAUsedCapacity
                 })
 
             if ($StorageAccountAccessAnalysisSubscriptionTags[0] -ne 'undefined' -and $StorageAccountAccessAnalysisSubscriptionTags.Count -gt 0) {
@@ -238,10 +271,10 @@ function processStorageAccountAnalysis {
             }
 
             if ($StorageAccountAccessAnalysisStorageAccountTags[0] -ne 'undefined' -and $StorageAccountAccessAnalysisStorageAccountTags.Count -gt 0) {
-                if ($storageAccount.tags) {
+                if ($storageAccount.SA.tags) {
                     $htAllSATags = @{}
-                    foreach ($saTagName in ($storageAccount.tags | Get-Member).where({ $_.MemberType -eq 'NoteProperty' }).Name) {
-                        $htAllSATags.$saTagName = $storageAccount.tags.$saTagName
+                    foreach ($saTagName in ($storageAccount.SA.tags | Get-Member).where({ $_.MemberType -eq 'NoteProperty' }).Name) {
+                        $htAllSATags.$saTagName = $storageAccount.SA.tags.$saTagName
                     }
                 }
                 foreach ($saTag4StorageAccountAccessAnalysis in $StorageAccountAccessAnalysisStorageAccountTags) {
@@ -259,9 +292,9 @@ function processStorageAccountAnalysis {
         } -ThrottleLimit $ThrottleLimit
     }
     else {
-        Write-Host " No Storage Accounts present"
+        Write-Host ' No Storage Accounts present'
     }
 
     $end = Get-Date
-    Write-Host " Processing Storage Account Analysis duration: $((NEW-TIMESPAN -Start $start -End $end).TotalSeconds) seconds"
+    Write-Host " Processing Storage Account Analysis duration: $((New-TimeSpan -Start $start -End $end).TotalMinutes) minutes ($((New-TimeSpan -Start $start -End $end).TotalSeconds) seconds)"
 }

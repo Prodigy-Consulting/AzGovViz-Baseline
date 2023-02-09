@@ -1,7 +1,7 @@
 function runInfo {
     #region RunInfo
     Write-Host 'Run Info:'
-    if ($azAPICallConf['htParameters'].HierarchyMapOnly -eq $true) {
+    if ($HierarchyMapOnly) {
         Write-Host ' Creating HierarchyMap only' -ForegroundColor Green
     }
     else {
@@ -343,7 +343,7 @@ function runInfo {
             #$script:paramsUsed += "ShowMemoryUsage: $($ShowMemoryUsage) &#13;"
         }
 
-        if ($CriticalMemoryUsage -ne 90) {
+        if ($CriticalMemoryUsage -ne 99) {
             Write-Host " CriticalMemoryUsage = $($CriticalMemoryUsage)%" -ForegroundColor green
             #$script:paramsUsed += "ShowMemoryUsage: $($ShowMemoryUsage) &#13;"
         }
@@ -437,6 +437,15 @@ function runInfo {
         else {
             Write-Host " NoNetwork = $($NoNetwork)" -ForegroundColor Yellow
             #$script:paramsUsed += "NoNetwork: $($NoNetwork) &#13;"
+
+            if ($NetworkSubnetIPAddressUsageCriticalPercentage -ne 90) {
+                Write-Host " NetworkSubnetIPAddressUsageCriticalPercentage = $($NetworkSubnetIPAddressUsageCriticalPercentage)" -ForegroundColor Green
+                #$script:paramsUsed += "NetworkSubnetIPAddressUsageCriticalPercentage: $($NetworkSubnetIPAddressUsageCriticalPercentage) &#13;"
+            }
+            else {
+                Write-Host " NoNetwork = $($NetworkSubnetIPAddressUsageCriticalPercentage)" -ForegroundColor Yellow
+                #$script:paramsUsed += "NetworkSubnetIPAddressUsageCriticalPercentage: $($NetworkSubnetIPAddressUsageCriticalPercentage) &#13;"
+            }
         }
 
         if ($GitHubActionsOIDC) {

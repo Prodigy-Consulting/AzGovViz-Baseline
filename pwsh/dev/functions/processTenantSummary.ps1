@@ -1214,7 +1214,7 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$tenantCustomPoliciesCount Custom Policy definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $tenantCustomPoliciesCount Custom Policy definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -1377,7 +1377,7 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$tenantCustomPoliciesCount Custom Policy definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $tenantCustomPoliciesCount Custom Policy definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -1500,7 +1500,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($customPoliciesOrphaned).count) Orphaned Custom Policy definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($customPoliciesOrphaned).count) Orphaned Custom Policy definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -1624,7 +1624,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($arrayCustomPoliciesOrphanedFinalIncludingResourceGroups.count) Orphaned Custom Policy definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($arrayCustomPoliciesOrphanedFinalIncludingResourceGroups.count) Orphaned Custom Policy definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -2003,7 +2003,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$tenantCustomPolicySetsCount Custom PolicySet definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $tenantCustomPolicySetsCount Custom PolicySet definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -2135,7 +2135,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$tenantCustomPolicySetsCount Custom PolicySet definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $tenantCustomPolicySetsCount Custom PolicySet definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -2240,7 +2240,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($arraycustompolicySetSetsOrphanedFinalIncludingResourceGroups).count) Orphaned Custom PolicySet definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($arraycustompolicySetSetsOrphanedFinalIncludingResourceGroups).count) Orphaned Custom PolicySet definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -2359,7 +2359,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($arraycustompolicySetsOrphanedFinalIncludingResourceGroups).count) Orphaned Custom PolicySet definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($arraycustompolicySetsOrphanedFinalIncludingResourceGroups).count) Orphaned Custom PolicySet definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -2496,7 +2496,8 @@ extensions: [{ name: 'sort' }]
 
             $htmlSUMMARYALZPolicyVersionChecker = $null
             $exemptionData4CSVExport = [System.Collections.ArrayList]@()
-            $htmlSUMMARYALZPolicyVersionChecker = foreach ($entry in $alzPoliciesInTenant) {
+            $alzPoliciesInTenantSorted = $alzPoliciesInTenant | Sort-Object -Property PolicyName, PolicyId, ALZPolicyName, Type
+            $htmlSUMMARYALZPolicyVersionChecker = foreach ($entry in $alzPoliciesInTenantSorted) {
                 if ([string]::IsNullOrWhiteSpace($entry.AzAdvertizerUrl)) {
                     $link = ''
                 }
@@ -2522,7 +2523,7 @@ extensions: [{ name: 'sort' }]
 
             if (-not $NoCsvExport) {
                 Write-Host "Exporting 'Azure Landing Zones (ALZ) Policy Version Checker' CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_ALZPolicyVersionChecker.csv'"
-                $alzPoliciesInTenant | Sort-Object -Property PolicyName, PolicyId | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_ALZPolicyVersionChecker.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
+                $alzPoliciesInTenantSorted | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_ALZPolicyVersionChecker.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
             }
 
             [void]$htmlTenantSummary.AppendLine($htmlSUMMARYALZPolicyVersionChecker)
@@ -2587,13 +2588,13 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">Azure Landing Zones (ALZ) Policy Version Checker</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Azure Landing Zones (ALZ) Policy Version Checker</p>
 '@)
         }
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">Azure Landing Zones (ALZ) Policy Version Checker (parameter -NoALZPolicyVersionChecker = $NoALZPolicyVersionChecker)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Azure Landing Zones (ALZ) Policy Version Checker (parameter -NoALZPolicyVersionChecker = $NoALZPolicyVersionChecker)</p>
 "@)
     }
     #endregion SUMMARYALZPolicies
@@ -2714,7 +2715,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($policySetsDeprecated).count) PolicySets / deprecated Built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($policySetsDeprecated).count) PolicySets / deprecated Built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
 "@)
     }
     #endregion SUMMARYPolicySetsDeprecatedPolicy
@@ -2866,7 +2867,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($policyAssignmentsDeprecated).count) Policy assignments / deprecated Built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($policyAssignmentsDeprecated).count) Policy assignments / deprecated Built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
 "@)
     }
     #endregion SUMMARYPolicyAssignmentsDeprecatedPolicy
@@ -3189,7 +3190,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($policyExemptionsCount) Policy exemptions</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($policyExemptionsCount) Policy exemptions</p>
 "@)
     }
     #endregion SUMMARYPolicyExemptions
@@ -3274,7 +3275,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($policyAssignmentsOrphanedCount) Policy assignments orphaned <abbr title="Policy definition not available &#13;(likely a Management Group scoped Policy definition / Management Group deleted)"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($policyAssignmentsOrphanedCount) Policy assignments orphaned <abbr title="Policy definition not available &#13;(likely a Management Group scoped Policy definition / Management Group deleted)"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
 "@)
     }
     #endregion SUMMARYPolicyAssignmentsOrphaned
@@ -3967,7 +3968,7 @@ extensions: [{ name: 'sort' }]
             <div class="content TenantSummary padlxx">
                 <i class="fa fa-exclamation-triangle orange" aria-hidden="true"></i><span style="color:#ff0000"> Output of $tfCount lines would exceed the html rows limit of $HtmlTableRowsLimit (html file potentially would become unresponsive). Work with the CSV file <i>$($csvFilename).csv</i> | Note: the CSV file will only exist if you did NOT use parameter <i>-NoCsvExport</i></span><br>
                 <span style="color:#ff0000">You can adjust the html row limit by using parameter <i>-HtmlTableRowsLimit</i></span><br>
-                <span style="color:#ff0000">You can reduce the number of lines by using parameter <i>-LargeTenant</i> and/or <i>-DoNotIncludeResourceGroupsAnsResourcesOnRBAC</i></span><br>
+                <span style="color:#ff0000">You can reduce the number of lines by using parameter <i>-LargeTenant</i> and/or <i>-DoNotIncludeResourceGroupsAndResourcesOnRBAC</i></span><br>
                 <span style="color:#ff0000">Check the parameters documentation</span> <a class="externallink" href="https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting#parameters" target="_blank" rel="noopener">AzGovViz docs <i class="fa fa-external-link" aria-hidden="true"></i></a>
             </div>
 "@)
@@ -4249,7 +4250,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($arrayPolicyAssignmentsEnriched).count) Policy assignments</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($arrayPolicyAssignmentsEnriched).count) Policy assignments</p>
 "@)
     }
     $endSummaryPolicyAssignmentsAllHTML = Get-Date
@@ -4413,7 +4414,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$tenantCustomRolesCount Custom Role definitions ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $tenantCustomRolesCount Custom Role definitions ($scopeNamingSummary)</p>
 "@)
     }
     #endregion SUMMARYtenanttotalcustomroles
@@ -4533,7 +4534,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($arrayCustomRolesOrphanedFinalIncludingResourceGroups).count) Orphaned Custom Role definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($arrayCustomRolesOrphanedFinalIncludingResourceGroups).count) Orphaned Custom Role definitions ($scopeNamingSummary)</p>
 "@)
         }
         #not renant root
@@ -4663,7 +4664,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($arrayCustomRolesOrphanedFinalIncludingResourceGroups).count) Orphaned Custom Role definitions ($scopeNamingSummary)</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($arrayCustomRolesOrphanedFinalIncludingResourceGroups).count) Orphaned Custom Role definitions ($scopeNamingSummary)</p>
 "@)
         }
     }
@@ -4762,7 +4763,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($roleAssignmentsOrphanedUnique).count) Orphaned Role assignments ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($roleAssignmentsOrphanedUnique).count) Orphaned Role assignments ($scopeNamingSummary)</p>
 "@)
     }
     #endregion SUMMARYOrphanedRoleAssignments
@@ -4862,7 +4863,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No ClassicAdministrators</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No ClassicAdministrators</p>
 '@)
     }
     #endregion SUMMARYClassicAdministrators
@@ -4922,7 +4923,7 @@ extensions: [{ name: 'sort' }]
             <div class="content TenantSummary padlxx">
                 <i class="fa fa-exclamation-triangle orange" aria-hidden="true"></i><span style="color:#ff0000"> Output of $tfCount lines would exceed the html rows limit of $HtmlTableRowsLimit (html file potentially would become unresponsive). Work with the CSV file <i>$($csvFilename).csv</i> | Note: the CSV file will only exist if you did NOT use parameter <i>-NoCsvExport</i></span><br>
                 <span style="color:#ff0000">You can adjust the html row limit by using parameter <i>-HtmlTableRowsLimit</i></span><br>
-                <span style="color:#ff0000">You can reduce the number of lines by using parameter <i>-LargeTenant</i> and/or <i>-DoNotIncludeResourceGroupsAnsResourcesOnRBAC</i></span><br>
+                <span style="color:#ff0000">You can reduce the number of lines by using parameter <i>-LargeTenant</i> and/or <i>-DoNotIncludeResourceGroupsAndResourcesOnRBAC</i></span><br>
                 <span style="color:#ff0000">Check the parameters documentation</span> <a class="externallink" href="https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting#parameters" target="_blank" rel="noopener">AzGovViz docs <i class="fa fa-external-link" aria-hidden="true"></i></a>
             </div>
 "@)
@@ -5180,7 +5181,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($rbacAllCount) Role assignments</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($rbacAllCount) Role assignments</p>
 "@)
     }
 
@@ -5335,7 +5336,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No PIM Eligibility</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No PIM Eligibility</p>
 '@)
         }
 
@@ -5345,12 +5346,12 @@ extensions: [{ name: 'sort' }]
     else {
         if ($azAPICallConf['htParameters'].accountType -ne 'User' -and $NoPIMEligibility) {
             [void]$htmlTenantSummary.AppendLine(@"
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No PIM Eligibility - </span><span class="info valignMiddle">parameter -NoPIMEligibility = $NoPIMEligibility</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No PIM Eligibility - </span><span class="info valignMiddle">parameter -NoPIMEligibility = $NoPIMEligibility</p>
 "@)
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No PIM Eligibility - </span><span class="info valignMiddle">run AzGovViz with a Service Principal to get PIM Eligibility insights</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No PIM Eligibility - </span><span class="info valignMiddle">run AzGovViz with a Service Principal to get PIM Eligibility insights</p>
 '@)
         }
     }
@@ -5454,7 +5455,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($customRolesOwnerHtAll).count) Custom Role definitions Owner permissions ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($customRolesOwnerHtAll).count) Custom Role definitions Owner permissions ($scopeNamingSummary)</p>
 "@)
     }
     #endregion SUMMARYSecurityCustomRoles
@@ -5575,7 +5576,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($tenantAllRolesCanDoRoleAssignmentsCount) Role definitions can apply Role assignments</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($tenantAllRolesCanDoRoleAssignmentsCount) Role definitions can apply Role assignments</p>
 "@)
     }
     #endregion SUMMARYSecurityRolesCanDoRoleAssignments
@@ -5674,7 +5675,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($roleAssignmentsOwnerAssignmentSP).count) Owner permission assignments to ServicePrincipal ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($roleAssignmentsOwnerAssignmentSP).count) Owner permission assignments to ServicePrincipal ($scopeNamingSummary)</p>
 "@)
     }
     $endSUMMARYSecurityOwnerAssignmentSP = Get-Date
@@ -5787,7 +5788,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($roleAssignmentsOwnerAssignmentNotGroup).count) Owner permission assignments to notGroup ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($roleAssignmentsOwnerAssignmentNotGroup).count) Owner permission assignments to notGroup ($scopeNamingSummary)</p>
 "@)
     }
     $endSUMMARYSecurityOwnerAssignmentNotGroup = Get-Date
@@ -5898,7 +5899,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$(($roleAssignmentsUserAccessAdministratorAssignmentNotGroup).count) UserAccessAdministrator permission assignments to notGroup ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $(($roleAssignmentsUserAccessAdministratorAssignmentNotGroup).count) UserAccessAdministrator permission assignments to notGroup ($scopeNamingSummary)</p>
 "@)
     }
     $endSUMMARYSecurityUserAccessAdministratorAssignmentNotGroup = Get-Date
@@ -6012,7 +6013,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$($highPrivilegedGuestUserRoleAssignmentsCount) Guest Users with high permissions ($scopeNamingSummary)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $($highPrivilegedGuestUserRoleAssignmentsCount) Guest Users with high permissions ($scopeNamingSummary)</p>
 "@)
     }
     $endSUMMARYSecurityGuestUserHighPriviledgesAssignments = Get-Date
@@ -6318,7 +6319,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $blueprintDefinitionsOrphanedCount Orphaned Blueprint definitions</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $blueprintDefinitionsOrphanedCount Orphaned Blueprint definitions</p>
 "@)
     }
     #endregion SUMMARYBlueprintsOrphaned
@@ -6564,14 +6565,14 @@ extensions: [{ name: 'sort' }]
     #region SUMMARYMGdefault
     Write-Host '  processing TenantSummary ManagementGroups - default Management Group'
     [void]$htmlTenantSummary.AppendLine(@"
-    <p><img class="padlx imgSubTree defaultMG" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">Hierarchy Settings | Default Management Group Id: '<b>$($defaultManagementGroupId)</b>' <a class="externallink" href="https://docs.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---default-management-group" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></span></p>
+    <p><img class="padlx imgSubTree defaultMG" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Hierarchy Settings | Default Management Group Id: '<b>$($defaultManagementGroupId)</b>' <a class="externallink" href="https://docs.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---default-management-group" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     #endregion SUMMARYMGdefault
 
     #region SUMMARYMGRequireAuthorizationForGroupCreation
     Write-Host '  processing TenantSummary ManagementGroups - requireAuthorizationForGroupCreation Management Group'
     [void]$htmlTenantSummary.AppendLine(@"
-    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">Hierarchy Settings | Require authorization for Management Group creation: '<b>$($requireAuthorizationForGroupCreation)</b>' <a class="externallink" href="https://docs.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---require-authorization" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></span></p>
+    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Hierarchy Settings | Require authorization for Management Group creation: '<b>$($requireAuthorizationForGroupCreation)</b>' <a class="externallink" href="https://docs.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---require-authorization" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     #endregion SUMMARYMGRequireAuthorizationForGroupCreation
 
@@ -6638,8 +6639,10 @@ extensions: [{ name: 'sort' }]
 <tbody>
 '@)
 
-        Write-Host " Exporting MDfC Email Notifications CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_MDfCEmailNotifications.csv'"
-        $htDefenderEmailContacts.values | Sort-Object -Property subscriptionName | Select-Object -Property subscriptionId, subscriptionName, alertNotificationsState, alertNotificationsminimalSeverity, roles, emails | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_MDfCEmailNotifications.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
+        if (-not $ManagementGroupsOnly) {
+            Write-Host " Exporting MDfC Email Notifications CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_MDfCEmailNotifications.csv'"
+            $htDefenderEmailContacts.values | Sort-Object -Property subscriptionName | Select-Object -Property subscriptionId, subscriptionName, alertNotificationsState, alertNotificationsminimalSeverity, roles, emails | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_MDfCEmailNotifications.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
+        }
 
         $htmlSUMMARYSubs = $null
         $htmlSUMMARYSubs = foreach ($summarySubscription in $summarySubscriptions) {
@@ -6909,7 +6912,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions_excluded_r.svg"> <span class="valignMiddle">$outOfScopeSubscriptionsCount Subscriptions out-of-scope</span></p>
+    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions_excluded_r.svg"> $outOfScopeSubscriptionsCount Subscriptions out-of-scope</p>
 "@)
     }
     #endregion SUMMARYOutOfScopeSubscriptions
@@ -7000,7 +7003,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Tag Name Usage ($tagsUsageCount Tags) <a class="externallink" href="https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/decision-guides/resource-tagging" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Tag Name Usage ($tagsUsageCount Tags) <a class="externallink" href="https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/decision-guides/resource-tagging" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYTagNameUsage
@@ -7093,14 +7096,14 @@ extensions: [{ name: 'sort' }]
             }
             else {
                 [void]$htmlTenantSummary.AppendLine(@"
-        <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources ($resourcesResourceTypeCount ResourceTypes)</p>
+                    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources ($resourcesResourceTypeCount ResourceTypes)</p>
 "@)
             }
 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
 '@)
         }
         $endSUMMARYResources = Get-Date
@@ -7199,14 +7202,14 @@ extensions: [{ name: 'sort' }]
             }
             else {
                 [void]$htmlTenantSummary.AppendLine(@"
-        <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources ($resourcesResourceTypeCount ResourceTypes)</p>
+                    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources ($resourcesResourceTypeCount ResourceTypes)</p>
 "@)
             }
 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
 '@)
         }
         $endSUMMARYResources = Get-Date
@@ -7442,7 +7445,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No CAF Naming Recommendation Compliance data</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No CAF Naming Recommendation Compliance data</p>
 '@)
         }
         $endSUMMARYCAFResourceNamingALL = Get-Date
@@ -7455,22 +7458,29 @@ extensions: [{ name: 'sort' }]
     Write-Host '  processing TenantSummary Orphaned Resources'
     if ($arrayOrphanedResources.count -gt 0) {
         $script:arrayOrphanedResourcesSlim = $arrayOrphanedResources | Sort-Object -Property type
-        $arrayOrphanedResourcesGroupedByType = $arrayOrphanedResourcesSlim | Group-Object type
-        $orphanedResourceTypesCount = ($arrayOrphanedResourcesGroupedByType | Measure-Object).Count
+
 
         if ($azAPICallConf['htParameters'].DoAzureConsumption -eq $true) {
             $orphanedIncludingCost = $true
             $hintTableTH = " ($($AzureConsumptionPeriod) days)"
+
+            $arrayOrphanedResourcesGroupedByType = $arrayOrphanedResourcesSlim | Group-Object type, currency
+            $orphanedResourceTypesCount = ($arrayOrphanedResourcesGroupedByType | Measure-Object).Count
+            $orphanedResourceTypesCountUnique = ($arrayOrphanedResourcesSlim.type | Sort-Object -Unique).Count
         }
         else {
             $orphanedIncludingCost = $false
             $hintTableTH = ''
+
+            $arrayOrphanedResourcesGroupedByType = $arrayOrphanedResourcesSlim | Group-Object type
+            $orphanedResourceTypesCount = ($arrayOrphanedResourcesGroupedByType | Measure-Object).Count
+            $orphanedResourceTypesCountUnique = ($arrayOrphanedResourcesSlim.type | Sort-Object -Unique).Count
         }
 
         $tfCount = $orphanedResourceTypesCount
         $htmlTableId = 'TenantSummary_orphanedResources'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_orphanedResources"><i class="padlx fa fa-trash-o" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$($arrayOrphanedResources.count) Orphaned Resources ($orphanedResourceTypesCount ResourceTypes)</span>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_orphanedResources"><i class="padlx fa fa-trash-o" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$($arrayOrphanedResources.count) Orphaned Resources ($orphanedResourceTypesCountUnique ResourceTypes)</span>
 </button>
 <div class="content TenantSummary">
 <span class="padlxx info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> 'Azure Orphan Resources' ARG queries and workbooks</span> <a class="externallink" href="https://github.com/dolevshor/azure-orphan-resources" target="_blank" rel="noopener">GitHub <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
@@ -7493,11 +7503,13 @@ extensions: [{ name: 'sort' }]
         $htmlSUMMARYOrphanedResources = $null
         $htmlSUMMARYOrphanedResources = foreach ($orphanedResourceType in $arrayOrphanedResourcesGroupedByType | Sort-Object -Property Name) {
             $script:htDailySummary."OrpanedResourceType_$($orphanedResourceType.Name)" = ($orphanedResourceType.count)
-
             if ($orphanedIncludingCost) {
-                if ($orphanedResourceType.Group.Intent[0] -eq 'cost savings') {
+                if (($orphanedResourceType.Group[0].Intent) -eq 'cost savings') {
                     $orphCost = ($orphanedResourceType.Group.Cost | Measure-Object -Sum).Sum
-                    $orphCurrency = $orphanedResourceType.Group.Currency[0]
+                    if ($orphCost -eq 0) {
+                        $orphCost = ''
+                    }
+                    $orphCurrency = $orphanedResourceType.Group[0].Currency
                     $script:htDailySummary."OrpanedResourceType_$($orphanedResourceType.Name)_Costs" = $orphCost
                     $script:htDailySummary."OrpanedResourceType_$($orphanedResourceType.Name)_Costs_ConsumptionPeriodInDays" = $AzureConsumptionPeriod
                 }
@@ -7508,7 +7520,7 @@ extensions: [{ name: 'sort' }]
 
             }
             else {
-                if ($orphanedResourceType.Group.Intent[0] -eq 'cost savings') {
+                if (($orphanedResourceType.Group.Intent | Get-Unique) -eq 'cost savings') {
                     $orphCost = "<span class=`"info`">use parameter <b>-DoAzureConsumption</b> to show potential savings</span>"
                     $orphCurrency = ''
                 }
@@ -7520,7 +7532,7 @@ extensions: [{ name: 'sort' }]
 
             @"
 <tr>
-<td>$($orphanedResourceType.Name)</td>
+<td>$(($orphanedResourceType.Name -split ',')[0])</td>
 <td>$($orphanedResourceType.count)</td>
 <td>$(($orphanedResourceType.Group.SubscriptionId | Sort-Object -Unique).Count)</td>
 <td>$($orphanedResourceType.Group[0].Intent)</td>
@@ -7567,6 +7579,7 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
         }
         [void]$htmlTenantSummary.AppendLine(@"
 btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+        col_0: 'multiple',
         col_3: 'select',
         col_5: 'select',
         col_types: [
@@ -7586,7 +7599,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Orphaned Resources</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Orphaned Resources</p>
 '@)
     }
     $endSUMMARYOrphanedResources = Get-Date
@@ -7743,7 +7756,7 @@ extensions: [{ name: 'sort' }]
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$resourceProvidersAllCount Resource Providers</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $resourceProvidersAllCount Resource Providers</p>
 "@)
         }
         $endSUMMARYSubResourceProviders = Get-Date
@@ -7896,7 +7909,7 @@ extensions: [{ name: 'sort' }]
             }
             else {
                 [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$resourceProvidersAllCount Resource Providers</span></p>
+                    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $resourceProvidersAllCount Resource Providers</p>
 "@)
             }
             $endsumRPDetailed = Get-Date
@@ -8002,7 +8015,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No enabled Subscriptions Features</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/preview-features" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No enabled Subscriptions Features <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/preview-features" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
     $endSubFeatures = Get-Date
@@ -8029,7 +8042,8 @@ extensions: [{ name: 'sort' }]
         [void]$htmlTenantSummary.AppendLine(@"
 <button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_ResourceLocks"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">Resource Locks</span></button>
 <div class="content TenantSummary">
-<span class="padlxx info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Considerations before applying locks</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources#considerations-before-applying-locks" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a>
+<span class="padlxx info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Considerations before applying locks</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources#considerations-before-applying-locks" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<span class="padlxx info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Note: Detailed information on Resource Locks is provided in the *_ResourceLocks.csv</span>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -8097,7 +8111,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No Resource Locks at all <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources#considerations-before-applying-locks" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Resource Locks at all <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources#considerations-before-applying-locks" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
     $endResourceLocks = Get-Date
@@ -8276,7 +8290,7 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-shield" aria-hidden="true"></i> <span class="valignMiddle">No Microsoft Defender for Cloud plans at all</span></p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Microsoft Defender for Cloud plans at all</p>
 '@)
     }
     $endDefenderPlans = Get-Date
@@ -8433,7 +8447,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-shield" aria-hidden="true"></i> <span class="valignMiddle">No Microsoft Defender for Cloud plans at all</span></p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Microsoft Defender for Cloud plans at all</p>
 '@)
     }
     $endDefenderPlans = Get-Date
@@ -8624,7 +8638,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-shield" aria-hidden="true"></i> <span class="valignMiddle">No UserAssigned Managed Identities assigned to Resources / vice versa - at all</span></p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No UserAssigned Managed Identities assigned to Resources / vice versa - at all</p>
 '@)
         }
         $endUserAssignedIdentities4Resources = Get-Date
@@ -8790,7 +8804,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-            <i class="padlx fa fa-check-square-o" aria-hidden="true"></i> <span class="valignMiddle">PSRule for Azure - </span><span class="info">use parameter <b>-DoPSRule</b></span> - <a class="externallink" href="https://azure.github.io/PSRule.Rules.Azure/integrations" target="_blank" rel="noopener">PSRule for Azure <i class="fa fa-external-link" aria-hidden="true"></i></a>
+            <i class="padlx fa fa-ban" aria-hidden="true"></i> PSRule for Azure - <span class="info">integration paused - <a class="externallink" href="https://azure.github.io/PSRule.Rules.Azure/integrations" target="_blank" rel="noopener">PSRule for Azure <i class="fa fa-external-link" aria-hidden="true"></i></a>
 '@)
         }
         #endregion SUMMARYPSRule
@@ -8802,7 +8816,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         Write-Host '  processing TenantSummary Storage Account Access Analysis'
 
         $arrayStorageAccountAnalysisResultsCount = $arrayStorageAccountAnalysisResults.Count
-        if ($arrayStorageAccountAnalysisResultsCount.Count -gt 0) {
+        if ($arrayStorageAccountAnalysisResultsCount -gt 0) {
 
             if (-not $NoCsvExport) {
                 $storageAccountAccessAnalysisCSVPath = "$($outputPath)$($DirectorySeparatorChar)$($fileName)_StorageAccountAccessAnalysis.csv"
@@ -8851,6 +8865,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
 <th>Minimum Tls Version</th>
 <th>Allow SharedKey Access</th>
 <th>Require Infrastructure Encryption</th>
+<th>Allowed Copy Scope</th>
+<th>Allow Cross Tenant Replication</th>
+<th>DNS Endpoint Type</th>
+<th>Used Capacity (GB)</th>
 </tr>
 </thead>
 <tbody>
@@ -8887,6 +8905,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                         <td>$($result.minimumTlsVersion)</td>
                         <td>$($result.allowSharedKeyAccess)</td>
                         <td>$($result.requireInfrastructureEncryption)</td>
+                        <td>$($result.allowedCopyScope)</td>
+                        <td>$($result.allowCrossTenantReplication)</td>
+                        <td>$($result.dnsEndpointType)</td>
+                        <td>$($result.usedCapacity)</td>
                         </tr>
 "@)
 
@@ -8943,6 +8965,9 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
             col_24: 'select',
             col_25: 'select',
             col_26: 'select',
+            col_27: 'select',
+            col_28: 'select',
+            col_29: 'select',
             col_types: [
                 'caseinsensitivestring',
                 'caseinsensitivestring',
@@ -8970,7 +8995,11 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                 'caseinsensitivestring',
                 'caseinsensitivestring',
                 'caseinsensitivestring',
-                'caseinsensitivestring'
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'number'
             ],
             extensions: [{ name: 'sort' }]
         };
@@ -8982,7 +9011,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-                <p><i class="padlx fa fa-user-secret" aria-hidden="true"></i> <span class="valignMiddle">No Storage Accounts found</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Storage Accounts found</p>
 '@)
         }
         $endStorageAccountAnalysis = Get-Date
@@ -8990,7 +9019,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">Storage Account Access Analysis disabled - </span><span class="info">parameter -NoStorageAccountAccessAnalysis = $($azAPICallConf['htParameters'].NoStorageAccountAccessAnalysis)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Storage Account Access Analysis disabled - <span class="info">parameter -NoStorageAccountAccessAnalysis = $($azAPICallConf['htParameters'].NoStorageAccountAccessAnalysis)</span></p>
 "@)
     }
     #endregion SUMMARYStorageAccountAnalysis
@@ -9041,8 +9070,11 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
 <th>Subnets</th>
 <th>Subnets with NSG</th>
 <th>Subnets with RouteTable</th>
-<th>Subnets with Delegations</th>
+<th>Subnets with Delegation</th>
+<th>Private Endpoints</th>
+<th>Subnets with Private Endpoints</th>
 <th>Connected device</th>
+<th>Subnets with connected device</th>
 <th>DDoS</th>
 <th>Peerings Count</th>
 </tr>
@@ -9066,7 +9098,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                         <td>$($result.SubnetsWithNSGCount)</td>
                         <td>$($result.SubnetsWithRouteTableCount)</td>
                         <td>$($result.SubnetsWithDelegationsCount)</td>
+                        <td>$($result.PrivateEndpointsCount)</td>
+                        <td>$($result.SubnetsWithPrivateEndPointsCount)</td>
                         <td>$($result.ConnectedDevices)</td>
+                        <td>$($result.SubnetsWithConnectedDevicesCount)</td>
                         <td>$($result.DdosProtection)</td>
                         <td>$($result.PeeringsCount)</td>
                         </tr>
@@ -9111,7 +9146,7 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
 btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
             linked_filters: true,
             col_5: 'select',
-            col_13: 'select',
+            col_16: 'select',
             col_types: [
                 'caseinsensitivestring',
                 'caseinsensitivestring',
@@ -9121,6 +9156,9 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                 'caseinsensitivestring',
                 'caseinsensitivestring',
                 'caseinsensitivestring',
+                'number',
+                'number',
+                'number',
                 'number',
                 'number',
                 'number',
@@ -9139,7 +9177,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-shield" aria-hidden="true"></i> <span class="valignMiddle">No Virtual Networks</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Virtual Networks</p>
 '@)
         }
         $endVNets = Get-Date
@@ -9147,10 +9185,190 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">Virtual Networks - Network Analysis disabled - </span><span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Virtual Networks - Network Analysis disabled - <span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
 "@)
     }
     #endregion SUMMARYVNets
+
+    #region SUMMARYSubnets
+    if ($azAPICallConf['htParameters'].NoNetwork -eq $false) {
+        $startSubnets = Get-Date
+        Write-Host '  processing TenantSummary Subnets'
+        $subnets = $arraySubnets | Sort-Object -Property SubscriptionName, VNet, VNetId, SubnetName
+        $subnetsCount = $subnets.Count
+
+        if (-not $NoCsvExport) {
+            $subnetsCSVPath = "$($outputPath)$($DirectorySeparatorChar)$($fileName)_VirtualNetworkSubnets.csv"
+            Write-Host "   Exporting Subnets CSV '$subnetsCSVPath'"
+            $subnets | Export-Csv -Path $subnetsCSVPath -Delimiter "$csvDelimiter" -NoTypeInformation
+        }
+
+        if ($subnetsCount -gt 0) {
+
+            $subnetIPAddressUsageCriticalCount = ($subnets.where({ $_.SubnetIPAddressUsageCritical -eq $true })).Count
+            $criticalUsageText = ''
+            if ($subnetIPAddressUsageCriticalCount -gt 0) {
+                $criticalUsageText = " ($subnetIPAddressUsageCriticalCount > $($NetworkSubnetIPAddressUsageCriticalPercentage)% IP addresses used)"
+            }
+
+            $htmlTableId = 'TenantSummary_Subnets'
+            $tfCount = $subnetsCount
+            [void]$htmlTenantSummary.AppendLine(@"
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_Subnets"><i class="padlx fa fa-arrows-h" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$tfCount Subnets$($criticalUsageText)</span></button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<table id="$htmlTableId" class="summaryTable">
+<thead>
+<tr>
+<th>Subscription Name</th>
+<th>Subscription</th>
+<th>MGPath</th>
+<th>VNet</th>
+<th>VNet Resource Group</th>
+<th>Location</th>
+<th>Name</th>
+<th>Id</th>
+<th>Subnet</th>
+<th>Prefix</th>
+<th>Mask</th>
+<th>Range</th>
+<th>Connected devices</th>
+<th>Free IP addresses</th>
+<th>Used IP addresses %</th>
+<th>Private Endpoint Network Policies</th>
+<th>Private Link Service Network Policies</th>
+<th>Service Endpoints count</th>
+<th>Service Endpoints</th>
+<th>Delegation</th>
+<th>NSG</th>
+<th>Route Table</th>
+<th>Nat Gateway</th>
+<th>Private Endpoints</th>
+</tr>
+</thead>
+<tbody>
+"@)
+
+            foreach ($result in $subnets) {
+
+                [void]$htmlTenantSummary.AppendLine(@"
+                        <tr>
+                        <td>$($result.SubscriptionName)</td>
+                        <td>$($result.Subscription)</td>
+                        <td style="min-width: 150px" class="breakwordall">$($result.MGPath)</td>
+                        <td>$($result.VNet)</td>
+                        <td>$($result.VNetResourceGroup)</td>
+                        <td>$($result.Location)</td>
+                        <td>$($result.SubnetName)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.SubnetId)</td>
+                        <td>$($result.SubnetNet)</td>
+                        <td>$($result.SubnetPrefix)</td>
+                        <td>$($result.Subnetmask)</td>
+                        <td>$($result.Range)</td>
+                        <td>$($result.ConnectedDevices)</td>
+                        <td>$($result.AvailableIPAddresses)</td>
+                        <td>$($result.UsedIPAddressesPercent)</td>
+                        <td>$($result.PrivateEndpointNetworkPolicies)</td>
+                        <td>$($result.PrivateLinkServiceNetworkPolicies)</td>
+                        <td>$($result.ServiceEndpointsCount)</td>
+                        <td>$($result.ServiceEndpoints)</td>
+                        <td>$($result.Delegation)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.NetworkSecurityGroup)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.RouteTable)</td>
+                        <td>$($result.NatGateway)</td>
+                        <td>$($result.PrivateEndpoints)</td>
+                        </tr>
+"@)
+
+            }
+
+            [void]$htmlTenantSummary.AppendLine(@"
+</tbody>
+</table>
+<script>
+        function loadtf$("func_$htmlTableId")() { if (window.helpertfConfig4$htmlTableId !== 1) {
+            window.helpertfConfig4$htmlTableId =1;
+            var tfConfig4$htmlTableId = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+"@)
+            if ($tfCount -gt 10) {
+                $spectrum = "10, $tfCount"
+                if ($tfCount -gt 50) {
+                    $spectrum = "10, 25, 50, $tfCount"
+                }
+                if ($tfCount -gt 100) {
+                    $spectrum = "10, 30, 50, 100, $tfCount"
+                }
+                if ($tfCount -gt 500) {
+                    $spectrum = "10, 30, 50, 100, 250, $tfCount"
+                }
+                if ($tfCount -gt 1000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, $tfCount"
+                }
+                if ($tfCount -gt 2000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, 1000, 1500, $tfCount"
+                }
+                if ($tfCount -gt 3000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, 1000, 1500, 3000, $tfCount"
+                }
+                [void]$htmlTenantSummary.AppendLine(@"
+paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_storage'], filters: true, page_number: true, page_length: true, sort: true},*/
+"@)
+            }
+            [void]$htmlTenantSummary.AppendLine(@"
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            linked_filters: true,
+            col_5: 'select',
+            col_9: 'select',
+            col_10: 'select',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'number',
+                'number',
+                'number',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'number',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+            extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('$htmlTableId', tfConfig4$htmlTableId);
+        tf.init();}}
+    </script>
+</div>
+"@)
+        }
+        else {
+            [void]$htmlTenantSummary.AppendLine(@'
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Subnets</p>
+'@)
+        }
+        $endSubnets = Get-Date
+        Write-Host "   Subnets processing duration: $((New-TimeSpan -Start $startSubnets -End $endSubnets).TotalMinutes) minutes ($((New-TimeSpan -Start $startSubnets -End $endSubnets).TotalSeconds) seconds)"
+    }
+    else {
+        [void]$htmlTenantSummary.AppendLine(@"
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Subnets - Network Analysis disabled - <span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
+"@)
+    }
+    #endregion SUMMARYSubnets
 
     #region SUMMARYVNetPeerings
     if ($azAPICallConf['htParameters'].NoNetwork -eq $false) {
@@ -9171,10 +9389,12 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                 "$($peeringState.Name): $($peeringState.Count)"
             }
 
+            $xTenantPeeringsCount = $vnetPeerings.where({ $_.PeeringXTenant -eq 'true' }).Count
+
             $htmlTableId = 'TenantSummary_VNetPeerings'
             $tfCount = $VNetsPeeringsCount
             [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_TenantSummary_VNetPeerings"><i class="padlx fa fa-exchange" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$VNetsPeeringsCount Virtual Network Peerings - ($($arrayPeeringState -join "$CSVDelimiterOpposite "))</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_TenantSummary_VNetPeerings"><i class="padlx fa fa-exchange" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$VNetsPeeringsCount Virtual Network Peerings - ($($arrayPeeringState -join "$CSVDelimiterOpposite ")) (Cross Tenant: $($xTenantPeeringsCount))</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -9191,10 +9411,14 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
 <th>Subnets</th>
 <th>Subnets with NSG</th>
 <th>Subnets with RouteTable</th>
-<th>Subnets with Delegations</th>
+<th>Subnets with Delegation</th>
+<th>Private Endpoints</th>
+<th>Subnets with Private Endpoints</th>
 <th>Connected device</th>
+<th>Subnets with connected device</th>
 <th>DDoS</th>
 <th class="uamiresaltbgc">Peerings Count</th>
+<th class="uamiresaltbgc">Peering Cross Tenant</th>
 <th class="uamiresaltbgc">Peering Name</th>
 <th class="uamiresaltbgc">Peering State</th>
 <th class="uamiresaltbgc">Peering Sync Level</th>
@@ -9232,8 +9456,11 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
 <th class="uamiresaltbgc"><b>Remote</b> Subnets</th>
 <th class="uamiresaltbgc"><b>Remote</b> Subnets with NSG</th>
 <th class="uamiresaltbgc"><b>Remote</b> Subnets with RouteTable</th>
-<th class="uamiresaltbgc"><b>Remote</b> Subnets with Delegations</th>
+<th class="uamiresaltbgc"><b>Remote</b> Subnets with Delegation</th>
+<th class="uamiresaltbgc"><b>Remote</b> Private Endpoints</th>
+<th class="uamiresaltbgc"><b>Remote</b> Subnets with Private Endpoints</th>
 <th class="uamiresaltbgc"><b>Remote</b> Connected devices</th>
+<th class="uamiresaltbgc"><b>Remote</b> Subnets with connected devices</th>
 <th class="uamiresaltbgc"><b>Remote</b> DDoS</th>
 
 </tr>
@@ -9257,9 +9484,13 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                         <td>$($result.SubnetsWithNSGCount)</td>
                         <td>$($result.SubnetsWithRouteTableCount)</td>
                         <td>$($result.SubnetsWithDelegationsCount)</td>
+                        <td>$($result.PrivateEndpointsCount)</td>
+                        <td>$($result.SubnetsWithPrivateEndPointsCount)</td>
                         <td>$($result.ConnectedDevices)</td>
+                        <td>$($result.SubnetsWithConnectedDevicesCount)</td>
                         <td>$($result.DdosProtection)</td>
                         <td>$($result.PeeringsCount)</td>
+                        <td>$($result.PeeringXTenant)</td>
                         <td>$($result.PeeringName)</td>
                         <td>$($result.PeeringState)</td>
                         <td>$($result.PeeringSyncLevel)</td>
@@ -9297,7 +9528,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                         <td>$($result.RemoteSubnetsWithNSGCount)</td>
                         <td>$($result.RemoteSubnetsWithRouteTable)</td>
                         <td>$($result.RemoteSubnetsWithDelegations)</td>
+                        <td>$($result.RemotePrivateEndPoints)</td>
+                        <td>$($result.RemoteSubnetsWithPrivateEndPoints)</td>
                         <td>$($result.RemoteConnectedDevices)</td>
+                        <td>$($result.RemoteSubnetsWithConnectedDevices)</td>
                         <td>$($result.RemoteDdosProtection)</td>
                         </tr>
 "@)
@@ -9341,30 +9575,33 @@ paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_
 btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
             linked_filters: true,
             col_5: 'select',
-            col_13: 'select',
             col_16: 'select',
-            col_17: 'select',
             col_18: 'select',
-            col_19: 'select',
+
             col_20: 'select',
             col_21: 'select',
             col_22: 'select',
             col_23: 'select',
             col_24: 'select',
-
+            col_25: 'select',
+            col_26: 'select',
             col_27: 'select',
             col_28: 'select',
-            col_29: 'select',
-            col_30: 'select',
+
+
             col_31: 'select',
             col_32: 'select',
             col_33: 'select',
             col_34: 'select',
             col_35: 'select',
-
+            col_36: 'select',
+            col_37: 'select',
+            col_38: 'select',
             col_39: 'select',
-            col_41: 'select',
-            col_51: 'select',
+
+            col_43: 'select',
+            col_45: 'select',
+            col_58: 'select',
             col_types: [
                 'caseinsensitivestring',
                 'caseinsensitivestring',
@@ -9379,6 +9616,9 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                 'number',
                 'number',
                 'number',
+                'number',
+                'number',
+                'number',
                 'caseinsensitivestring',
                 'caseinsensitivestring',
                 'caseinsensitivestring',
@@ -9411,6 +9651,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
                 'caseinsensitivestring',
                 'caseinsensitivestring',
                 'caseinsensitivestring',
+                'caseinsensitivestring',
+                'number',
+                'number',
+                'number',
                 'number',
                 'number',
                 'number',
@@ -9428,7 +9672,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-shield" aria-hidden="true"></i> <span class="valignMiddle">No Virtual Network Peerings</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Virtual Network Peerings</p>
 '@)
         }
         $endVNetPeerings = Get-Date
@@ -9436,10 +9680,228 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">Virtual Network Peerings - Network Analysis disabled - </span><span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Virtual Network Peerings - Network Analysis disabled - <span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
 "@)
     }
     #endregion SUMMARYVNetPeerings
+
+    #region SUMMARYPrivateEndpoints
+    if ($azAPICallConf['htParameters'].NoNetwork -eq $false) {
+        $startPrivateEndpoints = Get-Date
+        Write-Host '  processing TenantSummary PrivateEndpoints'
+        $privateEndPoints = $arrayPrivateEndpointsEnriched | Sort-Object -Property PESubscriptionName, PEName
+        $privateEndPointsCount = $privateEndPoints.Count
+
+        if (-not $NoCsvExport) {
+            $peCSVPath = "$($outputPath)$($DirectorySeparatorChar)$($fileName)_PrivateEndpoints.csv"
+            Write-Host "   Exporting PrivateEndpoints CSV '$peCSVPath'"
+            $privateEndPoints | Export-Csv -Path $peCSVPath -Delimiter "$csvDelimiter" -NoTypeInformation
+        }
+
+        if ($privateEndPointsCount -gt 0) {
+
+            $crossSubPECount = ($privateEndPoints.where({ $_.crossSubscriptionPE -eq $true })).Count
+            $crossSubPEText = ''
+            if ($crossSubPECount -gt 0) {
+                $crossSubPEText = " ($crossSubPECount cross Subscription)"
+            }
+            $crossTenantPECount = ($privateEndPoints.where({ $_.crossTenantPE -eq $true })).Count
+            $crossTenantPEText = ''
+            if ($crossTenantPECount -gt 0) {
+                $crossTenantPEText = " ($crossTenantPECount cross Tenant)"
+            }
+
+            $htmlTableId = 'TenantSummary_PrivateEndpoints'
+            $tfCount = $privateEndPointsCount
+            [void]$htmlTenantSummary.AppendLine(@"
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_PrivateEndpoints"><i class="padlx fa fa-map-pin" aria-hidden="true" style="color: #0078df"></i> <span class="valignMiddle">$tfCount Private Endpoints$($crossSubPEText)$($crossTenantPEText)</span></button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<table id="$htmlTableId" class="summaryTable">
+<thead>
+<tr>
+
+<th>PE Name</th>
+<th>PE Id</th>
+<th>PE Location</th>
+<th>PE Resource Group</th>
+<th>PE Subscription Name</th>
+<th>PE Subscription</th>
+<th>PE MGPath</th>
+<th>PE Type</th>
+<th>PE State</th>
+<th>Cross Subscription PE</th>
+<th>Cross Tenant PE</th>
+
+<th class="uamiresaltbgc">Resource</th>
+<th class="uamiresaltbgc">Resource Type</th>
+<th class="uamiresaltbgc">Resource Id</th>
+<th class="uamiresaltbgc">Target Subresource</th>
+<th class="uamiresaltbgc">NIC Name</th>
+<th class="uamiresaltbgc">FQDN</th>
+<th class="uamiresaltbgc">IP addresses</th>
+<th class="uamiresaltbgc">Resource Resource Group</th>
+<th class="uamiresaltbgc">Resource Subscription Name</th>
+<th class="uamiresaltbgc">Resource Subscription Id</th>
+<th class="uamiresaltbgc">Resource MGPath</th>
+<th class="uamiresaltbgc">Resource Cross Tenant</th>
+
+<th>Subnet</th>
+<th>Subnet Id</th>
+<th>VNet</th>
+<th>VNet Id</th>
+<th>VNet Location</th>
+<th>VNet Resource Group</th>
+<th>Subnet Subscription Name</th>
+<th>Subnet Subscription Id</th>
+<th>Subnet MGPath</th>
+</tr>
+</thead>
+<tbody>
+"@)
+
+            foreach ($result in $privateEndPoints) {
+
+                [void]$htmlTenantSummary.AppendLine(@"
+                        <tr>
+                        <td>$($result.PEName)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.PEId)</td>
+                        <td>$($result.PELocation)</td>
+                        <td>$($result.PEResourceGroup)</td>
+                        <td>$($result.PESubscriptionName)</td>
+                        <td>$($result.PESubscription)</td>
+                        <td style="min-width: 150px" class="breakwordall">$($result.PEMGPath)</td>
+                        <td>$($result.PEConnectionType)</td>
+                        <td>$($result.PEConnectionState)</td>
+                        <td>$($result.CrossSubscriptionPE)</td>
+                        <td>$($result.CrossTenantPE)</td>
+
+                        <td>$($result.Resource)</td>
+                        <td>$($result.ResourceType)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.ResourceId)</td>
+                        <td>$($result.TargetSubresource)</td>
+                        <td>$($result.NICName)</td>
+                        <td>$($result.FQDN)</td>
+                        <td>$($result.ipAddresses)</td>
+                        <td>$($result.ResourceResourceGroup)</td>
+                        <td>$($result.ResourceSubscriptionName)</td>
+                        <td>$($result.ResourceSubscriptionId)</td>
+                        <td style="min-width: 150px" class="breakwordall">$($result.ResourceMGPath)</td>
+                        <td>$($result.ResourceCrossTenant)</td>
+
+                        <td>$($result.Subnet)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.SubnetId)</td>
+                        <td>$($result.SubnetVNet)</td>
+                        <td style="min-width: 200px" class="breakwordall">$($result.SubnetVNetId)</td>
+                        <td>$($result.SubnetVNetLocation)</td>
+                        <td>$($result.SubnetVNetResourceGroup)</td>
+                        <td>$($result.SubnetSubscriptionName)</td>
+                        <td>$($result.SubnetSubscription)</td>
+                        <td style="min-width: 150px" class="breakwordall">$($result.SubnetMGPath)</td>
+                        </tr>
+"@)
+
+            }
+
+            [void]$htmlTenantSummary.AppendLine(@"
+</tbody>
+</table>
+<script>
+        function loadtf$("func_$htmlTableId")() { if (window.helpertfConfig4$htmlTableId !== 1) {
+            window.helpertfConfig4$htmlTableId =1;
+            var tfConfig4$htmlTableId = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+"@)
+            if ($tfCount -gt 10) {
+                $spectrum = "10, $tfCount"
+                if ($tfCount -gt 50) {
+                    $spectrum = "10, 25, 50, $tfCount"
+                }
+                if ($tfCount -gt 100) {
+                    $spectrum = "10, 30, 50, 100, $tfCount"
+                }
+                if ($tfCount -gt 500) {
+                    $spectrum = "10, 30, 50, 100, 250, $tfCount"
+                }
+                if ($tfCount -gt 1000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, $tfCount"
+                }
+                if ($tfCount -gt 2000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, 1000, 1500, $tfCount"
+                }
+                if ($tfCount -gt 3000) {
+                    $spectrum = "10, 30, 50, 100, 250, 500, 750, 1000, 1500, 3000, $tfCount"
+                }
+                [void]$htmlTenantSummary.AppendLine(@"
+paging: {results_per_page: ['Records: ', [$spectrum]]},/*state: {types: ['local_storage'], filters: true, page_number: true, page_length: true, sort: true},*/
+"@)
+            }
+            [void]$htmlTenantSummary.AppendLine(@"
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            linked_filters: true,
+            col_2: 'select',
+            col_7: 'select',
+            col_8: 'select',
+            col_9: 'select',
+            col_10: 'select',
+            col_12: 'select',
+            col_14: 'select',
+            col_22: 'select',
+            col_27: 'select',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+            extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('$htmlTableId', tfConfig4$htmlTableId);
+        tf.init();}}
+    </script>
+</div>
+"@)
+        }
+        else {
+            [void]$htmlTenantSummary.AppendLine(@'
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Private Endpoints</p>
+'@)
+        }
+        $endPrivateEndpoints = Get-Date
+        Write-Host "   PrivateEndpoints processing duration: $((New-TimeSpan -Start $startPrivateEndpoints -End $endPrivateEndpoints).TotalMinutes) minutes ($((New-TimeSpan -Start $startPrivateEndpoints -End $endPrivateEndpoints).TotalSeconds) seconds)"
+    }
+    else {
+        [void]$htmlTenantSummary.AppendLine(@"
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Private Endpoints - Network Analysis disabled - <span class="info">parameter -NoNetwork = $($azAPICallConf['htParameters'].NoNetwork)</span></p>
+"@)
+    }
+    #endregion SUMMARYPrivateEndpoints
 
     [void]$htmlTenantSummary.AppendLine(@'
     </div>
@@ -9455,7 +9917,7 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
 '@)
 
     [void]$htmlTenantSummary.AppendLine( @'
-<p><img class="imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle"><b>Management Groups</b></span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle"><b>Management Groups</b></span></p>
 '@)
 
     #region SUMMARYDiagnosticsManagementGroups
@@ -9466,10 +9928,10 @@ btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { 
         $tfCount = $diagnosticSettingsMgCount
         $htmlTableId = 'TenantSummary_DiagnosticsManagementGroups'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsManagementGroups"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsMgManagementGroupsCount ($mgsDiagnosticsApplicableCount) Management Groups configured for Diagnostic settings ($diagnosticSettingsMgCount settings)</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsManagementGroups"><i class="padlxx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsMgManagementGroupsCount ($mgsDiagnosticsApplicableCount) Management Groups configured for Diagnostic settings ($diagnosticSettingsMgCount settings)</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Management Group Diagnostic Settings - Create Or Update - REST API</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Management Group Diagnostic Settings - Create Or Update - REST API</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -9606,7 +10068,7 @@ extensions: [{ name: 'sort' }]
     else {
 
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No Management Groups configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Management Groups configured for Diagnostic settings <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
 
@@ -9615,10 +10077,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = $arrayMgsWithoutDiagnosticsCount
         $htmlTableId = 'TenantSummary_NoDiagnosticsManagementGroups'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NoDiagnosticsManagementGroups"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$arrayMgsWithoutDiagnosticsCount Management Groups NOT configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NoDiagnosticsManagementGroups"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$arrayMgsWithoutDiagnosticsCount Management Groups NOT configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Management Group Diagnostic Settings - Create Or Update - REST API</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Management Group Diagnostic Settings - Create Or Update - REST API</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -9692,14 +10154,14 @@ extensions: [{ name: 'sort' }]
     else {
 
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">All Management Groups are configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> All Management Groups are configured for Diagnostic settings <a class="externallink" href="https://docs.microsoft.com/en-us/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
     #endregion SUMMARYDiagnosticsManagementGroups
 
     #region subscriptions
     [void]$htmlTenantSummary.AppendLine( @'
-<p><img class="imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle"><b>Subscriptions</b></span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle"><b>Subscriptions</b></span></p>
 '@)
 
     #region SUMMARYDiagnosticsSubscriptions
@@ -9710,10 +10172,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = $diagnosticSettingsSubCount
         $htmlTableId = 'TenantSummary_DiagnosticsSubscriptions'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsSubscriptions"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsSubSubscriptionsCount Subscriptions configured for Diagnostic settings ($diagnosticSettingsSubCount settings)</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsSubscriptions"><i class="padlxx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsSubSubscriptionsCount Subscriptions configured for Diagnostic settings ($diagnosticSettingsSubCount settings)</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create diagnostic setting</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create diagnostic setting</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -9846,7 +10308,7 @@ extensions: [{ name: 'sort' }]
     else {
 
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No Subscriptions configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Subscriptions configured for Diagnostic settings <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
 
@@ -9855,10 +10317,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = $diagnosticSettingsSubNoDiagCount
         $htmlTableId = 'TenantSummary_NoDiagnosticsSubscriptions'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NoDiagnosticsSubscriptions"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsSubNoDiagCount Subscriptions NOT configured for Diagnostic settings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NoDiagnosticsSubscriptions"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$diagnosticSettingsSubNoDiagCount Subscriptions NOT configured for Diagnostic settings</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create diagnostic setting</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create diagnostic setting</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -9932,7 +10394,7 @@ extensions: [{ name: 'sort' }]
     else {
 
         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">All Subscriptions are configured for Diagnostic settings</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> All Subscriptions are configured for Diagnostic settings <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 '@)
     }
     #endregion SUMMARYDiagnosticsSubscriptions
@@ -9942,7 +10404,7 @@ extensions: [{ name: 'sort' }]
     if ($azAPICallConf['htParameters'].NoResources -eq $false) {
         #region resources
         [void]$htmlTenantSummary.AppendLine( @'
-<p><img class="imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/10001-icon-service-All-Resources.svg"> <span class="valignMiddle"><b>Resources</b></span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/10001-icon-service-All-Resources.svg"> <span class="valignMiddle"><b>Resources</b></span></p>
 '@)
 
         #region SUMMARYResourcesDiagnosticsCapable
@@ -9956,11 +10418,11 @@ extensions: [{ name: 'sort' }]
             $tfCount = $resourceTypesDiagnosticsArraySortedCount
             $htmlTableId = 'TenantSummary_ResourcesDiagnosticsCapable'
             [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_ResourcesDiagnosticsCapable"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">Resources (1st party) Diagnostics capable $resourceTypesDiagnosticsMetricsLogsTrueCount/$resourceTypesDiagnosticsArraySortedCount ResourceTypes ($resourceTypesDiagnosticsMetricsTrueCount Metrics, $resourceTypesDiagnosticsLogsTrueCount Logs)</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_ResourcesDiagnosticsCapable"><i class="padlxx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">Resources (1st party) Diagnostics capable $resourceTypesDiagnosticsMetricsLogsTrueCount/$resourceTypesDiagnosticsArraySortedCount ResourceTypes ($resourceTypesDiagnosticsMetricsTrueCount Metrics, $resourceTypesDiagnosticsLogsTrueCount Logs)</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create Custom Policies for Azure ResourceTypes that support Diagnostics Logs and Metrics</span> <a class="externallink" href="https://github.com/JimGBritt/AzurePolicy/blob/master/AzureMonitor/Scripts/README.md#overview-of-create-azdiagpolicyps1" target="_blank" rel="noopener">Create-AzDiagPolicy <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Supported categories for Azure Resource Logs</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-categories" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create Custom Policies for Azure ResourceTypes that support Diagnostics Logs and Metrics</span> <a class="externallink" href="https://github.com/JimGBritt/AzurePolicy/blob/master/AzureMonitor/Scripts/README.md#overview-of-create-azdiagpolicyps1" target="_blank" rel="noopener">Create-AzDiagPolicy <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Supported categories for Azure Resource Logs</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-categories" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10057,7 +10519,7 @@ extensions: [{ name: 'sort' }]
         else {
 
             [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No Resources (1st party) Diagnostics capable</span></p>
+                <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Resources (1st party) Diagnostics capable</p>
 '@)
         }
         #endregion SUMMARYResourcesDiagnosticsCapable
@@ -10315,10 +10777,10 @@ extensions: [{ name: 'sort' }]
 
                         $htmlTableId = 'TenantSummary_DiagnosticsLifecycle'
                         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsLifecycle"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">ResourceDiagnostics for Logs - Policy Lifecycle recommendations</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_DiagnosticsLifecycle"><i class="padlxx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">ResourceDiagnostics for Logs - Policy Lifecycle recommendations</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create Custom Policies for Azure ResourceTypes that support Diagnostics Logs and Metrics</span> <a class="externallink" href="https://github.com/JimGBritt/AzurePolicy/blob/master/AzureMonitor/Scripts/README.md#overview-of-create-azdiagpolicyps1" target="_blank" rel="noopener">Create-AzDiagPolicy <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Supported categories for Azure Resource Logs</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-categories" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Create Custom Policies for Azure ResourceTypes that support Diagnostics Logs and Metrics</span> <a class="externallink" href="https://github.com/JimGBritt/AzurePolicy/blob/master/AzureMonitor/Scripts/README.md#overview-of-create-azdiagpolicyps1" target="_blank" rel="noopener">Create-AzDiagPolicy <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Supported categories for Azure Resource Logs</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-categories" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10450,19 +10912,19 @@ extensions: [{ name: 'sort' }]
                     }
                     else {
                         [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No ResourceDiagnostics Policy Lifecycle recommendations</span></p>
+                            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No ResourceDiagnostics Policy Lifecycle recommendations</p>
 '@)
                     }
                 }
                 else {
                     [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No ResourceDiagnostics Policy Lifecycle recommendations</span></p>
+                        <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No ResourceDiagnostics Policy Lifecycle recommendations</p>
 '@)
                 }
             }
             else {
                 [void]$htmlTenantSummary.AppendLine(@'
-    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No ResourceDiagnostics Policy Lifecycle recommendations</span></p>
+                    <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No ResourceDiagnostics Policy Lifecycle recommendations</p>
 '@)
             }
             $endsumDiagLifecycle = Get-Date
@@ -10489,30 +10951,30 @@ extensions: [{ name: 'sort' }]
 
     #region tenantSummaryLimitsTenant
     [void]$htmlTenantSummary.AppendLine( @'
-<p><i class="fa fa-home" aria-hidden="true"></i> <span class="valignMiddle"><b>Tenant</b></span></p>
+<p><i class="padlx fa fa-home" aria-hidden="true"></i> Tenant</p>
 '@)
 
     #policySets
     if ($tenantCustompolicySetsCount -gt (($LimitPOLICYPolicySetDefinitionsScopedTenant * $LimitCriticalPercentage) / 100)) {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> PolicySet definitions: $tenantCustompolicySetsCount/$LimitPOLICYPolicySetDefinitionsScopedTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> PolicySet definitions: $tenantCustompolicySetsCount/$LimitPOLICYPolicySetDefinitionsScopedTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> PolicySet definitions: $tenantCustompolicySetsCount/$LimitPOLICYPolicySetDefinitionsScopedTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> PolicySet definitions: $tenantCustompolicySetsCount/$LimitPOLICYPolicySetDefinitionsScopedTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
 
     #CustomRoleDefinitions
     if ($tenantCustomRolesCount -gt (($LimitRBACCustomRoleDefinitionsTenant * $LimitCriticalPercentage) / 100)) {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> Custom Role definitions: $tenantCustomRolesCount/$LimitRBACCustomRoleDefinitionsTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> Custom Role definitions: $tenantCustomRolesCount/$LimitRBACCustomRoleDefinitionsTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> Custom Role definitions: $tenantCustomRolesCount/$LimitRBACCustomRoleDefinitionsTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> Custom Role definitions: $tenantCustomRolesCount/$LimitRBACCustomRoleDefinitionsTenant <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
 
@@ -10520,7 +10982,7 @@ extensions: [{ name: 'sort' }]
 
     #region tenantSummaryLimitsManagementGroups
     [void]$htmlTenantSummary.AppendLine( @'
-<p><img class="imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle"><b>Management Groups</b></span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Management Groups</p>
 '@)
 
     #region SUMMARYMgsapproachingLimitsPolicyAssignments
@@ -10530,10 +10992,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($mgsApproachingLimitPolicyAssignments | Measure-Object).count
         $htmlTableId = 'TenantSummary_MgsapproachingLimitsPolicyAssignments'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicyAssignments"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicyAssignments | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyAssignmentsManagementGroup) for PolicyAssignment</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicyAssignments"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicyAssignments | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyAssignmentsManagementGroup) for PolicyAssignment</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10605,7 +11067,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicyAssignments | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyAssignmentsManagementGroup) for PolicyAssignment</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($mgsApproachingLimitPolicyAssignments | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyAssignmentsManagementGroup) for PolicyAssignment <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYMgsapproachingLimitsPolicyAssignments
@@ -10617,10 +11079,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($mgsApproachingLimitPolicyScope | Measure-Object).count
         $htmlTableId = 'TenantSummary_MgsapproachingLimitsPolicyScope'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicyScope"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicyScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyDefinitionsScopedManagementGroup) for Policy Scope</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicyScope"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicyScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicyDefinitionsScopedManagementGroup) for Policy Scope</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10692,7 +11154,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$($mgsApproachingLimitPolicyScope.count) Management Groups approaching Limit ($LimitPOLICYPolicyDefinitionsScopedManagementGroup) for Policy Scope</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $($mgsApproachingLimitPolicyScope.count) Management Groups approaching Limit ($LimitPOLICYPolicyDefinitionsScopedManagementGroup) for Policy Scope <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYMgsapproachingLimitsPolicyScope
@@ -10704,10 +11166,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($mgsApproachingLimitPolicySetScope | Measure-Object).count
         $htmlTableId = 'TenantSummary_MgsapproachingLimitsPolicySetScope'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicySetScope"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicySetScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedManagementGroup) for PolicySet Scope</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsPolicySetScope"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicySetScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedManagementGroup) for PolicySet Scope</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10779,7 +11241,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingLimitPolicySetScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedManagementGroup) for PolicySet Scope</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($mgsApproachingLimitPolicySetScope | Measure-Object).count) Management Groups approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedManagementGroup) for PolicySet Scope <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYMgsapproachingLimitsPolicySetScope
@@ -10792,10 +11254,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($mgsApproachingRoleAssignmentLimit).count
         $htmlTableId = 'TenantSummary_MgsapproachingLimitsRoleAssignment'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsRoleAssignment"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingRoleAssignmentLimit | Measure-Object).count) Management Groups approaching Limit ($LimitRBACRoleAssignmentsManagementGroup) for RoleAssignment</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_MgsapproachingLimitsRoleAssignment"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($mgsApproachingRoleAssignmentLimit | Measure-Object).count) Management Groups approaching Limit ($LimitRBACRoleAssignmentsManagementGroup) for RoleAssignment</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure RBAC Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure RBAC Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10867,7 +11329,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($mgApproachingRoleAssignmentLimit | Measure-Object).count) Management Groups approaching Limit ($LimitRBACRoleAssignmentsManagementGroup) for RoleAssignment</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($mgApproachingRoleAssignmentLimit | Measure-Object).count) Management Groups approaching Limit ($LimitRBACRoleAssignmentsManagementGroup) for RoleAssignment <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYMgsapproachingLimitsRoleAssignment
@@ -10876,7 +11338,7 @@ extensions: [{ name: 'sort' }]
 
     #region tenantSummaryLimitsSubscriptions
     [void]$htmlTenantSummary.AppendLine( @'
-<p><img class="imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle"><b>Subscriptions</b></span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> Subscriptions</p>
 '@)
 
     #region SUMMARYSubsapproachingLimitsResourceGroups
@@ -10886,10 +11348,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingLimitFromResourceGroupsAll | Measure-Object).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsResourceGroups'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsResourceGroups"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitFromResourceGroupsAll | Measure-Object).count) Subscriptions approaching Limit ($LimitResourceGroups) for ResourceGroups</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsResourceGroups"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitFromResourceGroupsAll | Measure-Object).count) Subscriptions approaching Limit ($LimitResourceGroups) for ResourceGroups</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Subscription Resource Group Limit</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Subscription Resource Group Limit</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -10962,7 +11424,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p"><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitFromResourceGroupsAll | Measure-Object).count) Subscriptions approaching Limit ($LimitResourceGroups) for ResourceGroups</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p"><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($subscriptionsApproachingLimitFromResourceGroupsAll | Measure-Object).count) Subscriptions approaching Limit ($LimitResourceGroups) for ResourceGroups <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsResourceGroups
@@ -10974,10 +11436,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingLimitTags | Measure-Object).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsSubscriptionTags'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsSubscriptionTags"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitTags | Measure-Object).count) Subscriptions approaching Limit ($LimitTagsSubscription) for Tags</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsSubscriptionTags"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitTags | Measure-Object).count) Subscriptions approaching Limit ($LimitTagsSubscription) for Tags</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Subscription Tag Limit</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Subscription Tag Limit</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -11049,7 +11511,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$($subscriptionsApproachingLimitTags.count) Subscriptions approaching Limit ($LimitTagsSubscription) for Tags</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $($subscriptionsApproachingLimitTags.count) Subscriptions approaching Limit ($LimitTagsSubscription) for Tags <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsSubscriptionTags
@@ -11061,10 +11523,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingLimitPolicyAssignments | Measure-Object).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsPolicyAssignments'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicyAssignments"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyAssignments | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyAssignmentsSubscription) for PolicyAssignment</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicyAssignments"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyAssignments | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyAssignmentsSubscription) for PolicyAssignment</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -11136,7 +11598,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyAssignments | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyAssignmentsSubscription) for PolicyAssignment</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($subscriptionsApproachingLimitPolicyAssignments | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyAssignmentsSubscription) for PolicyAssignment <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsPolicyAssignments
@@ -11148,10 +11610,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingLimitPolicyScope | Measure-Object).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsPolicyScope'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicyScope"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyDefinitionsScopedSubscription) for Policy Scope</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicyScope"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicyDefinitionsScopedSubscription) for Policy Scope</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -11223,7 +11685,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$($subscriptionsApproachingLimitPolicyScope.count) Subscriptions approaching Limit ($LimitPOLICYPolicyDefinitionsScopedSubscription) for Policy Scope</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $($subscriptionsApproachingLimitPolicyScope.count) Subscriptions approaching Limit ($LimitPOLICYPolicyDefinitionsScopedSubscription) for Policy Scope <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsPolicyScope
@@ -11235,10 +11697,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingLimitPolicySetScope | Measure-Object).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsPolicySetScope'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicySetScope"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedSubscription) for PolicySet Scope</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsPolicySetScope"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedSubscription) for PolicySet Scope</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Policy Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -11310,7 +11772,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedSubscription) for PolicySet Scope</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($subscriptionsApproachingLimitPolicyScope | Measure-Object).count) Subscriptions approaching Limit ($LimitPOLICYPolicySetDefinitionsScopedSubscription) for PolicySet Scope <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsPolicySetScope
@@ -11325,10 +11787,10 @@ extensions: [{ name: 'sort' }]
         $tfCount = ($subscriptionsApproachingRoleAssignmentLimit).count
         $htmlTableId = 'TenantSummary_SubsapproachingLimitsRoleAssignment'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsRoleAssignment"><i class="padlx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingRoleAssignmentLimit | Measure-Object).count) Subscriptions approaching Limit ($($availableSubscriptionsRoleAssignmentLimits)) for RoleAssignment</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_SubsapproachingLimitsRoleAssignment"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingRoleAssignmentLimit | Measure-Object).count) Subscriptions approaching Limit ($($availableSubscriptionsRoleAssignmentLimits)) for RoleAssignment</span></button>
 <div class="content TenantSummary">
-<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure RBAC Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
-<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure RBAC Limits</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id= "$htmlTableId" class="summaryTable">
 <thead>
 <tr>
@@ -11400,7 +11862,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-    <p"><i class="padlx fa fa-check green" aria-hidden="true"></i> <span class="valignMiddle">$(($subscriptionsApproachingRoleAssignmentLimit | Measure-Object).count) Subscriptions approaching Limit ($availableSubscriptionsRoleAssignmentLimits) for RoleAssignment</span> <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p"><i class="padlxx fa fa-check green" aria-hidden="true"></i> $(($subscriptionsApproachingRoleAssignmentLimit | Measure-Object).count) Subscriptions approaching Limit ($availableSubscriptionsRoleAssignmentLimits) for RoleAssignment <a class="externallink" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">docs <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
 "@)
     }
     #endregion SUMMARYSubsapproachingLimitsRoleAssignment
@@ -11499,7 +11961,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No ServicePrincipals where the API returned 'Request_ResourceNotFound'</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No ServicePrincipals where the API returned 'Request_ResourceNotFound'</p>
 '@)
     }
     #endregion AADSPNotFound
@@ -11580,7 +12042,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No Applications where the API returned 'Request_ResourceNotFound'</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Applications where the API returned 'Request_ResourceNotFound'</p>
 '@)
     }
     #endregion AADAppNotFound
@@ -11898,7 +12360,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$servicePrincipalsOfTypeManagedIdentityCount AAD ServicePrincipals type=ManagedIdentity</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $servicePrincipalsOfTypeManagedIdentityCount AAD ServicePrincipals type=ManagedIdentity</p>
 "@)
     }
 
@@ -12068,7 +12530,7 @@ tf.init();}}
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$servicePrincipalsOfTypeApplicationCount AAD ServicePrincipals type=Application</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $servicePrincipalsOfTypeApplicationCount AAD ServicePrincipals type=Application</p>
 "@)
         }
 
@@ -12077,7 +12539,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No information on AAD ServicePrincipals type=Application as Guest account does not have enough permissions</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No information on AAD ServicePrincipals type=Application as Guest account does not have enough permissions</p>
 '@)
     }
     #endregion AADSPCredExpiry
@@ -12207,7 +12669,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">$appsWithOtherOrgIdCount External (appOwnerOrganizationId) AAD ServicePrincipals type=Application</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> $appsWithOtherOrgIdCount External (appOwnerOrganizationId) AAD ServicePrincipals type=Application</p>
 "@)
     }
 
@@ -12324,7 +12786,7 @@ tf.init();}}
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@'
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No information on Consumption</span></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No information on Consumption</p>
 '@)
         }
 
@@ -12334,7 +12796,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@'
-<p><i class="padlx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle">No information on Consumption as switch parameter -DoAzureConsumption was not applied</span></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No information on Consumption as switch parameter -DoAzureConsumption was not applied</p>
 '@)
     }
 
@@ -12677,7 +13139,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $customPolicyCreatedOrUpdatedCount Created/Updated custom Policy definitions</span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $customPolicyCreatedOrUpdatedCount Created/Updated custom Policy definitions</p>
 "@)
     }
     #endregion ChangeTrackingCustomPolicy
@@ -12826,7 +13288,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $customPolicySetCreatedOrUpdatedCount Created/Updated custom PolicySet definitions</span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $customPolicySetCreatedOrUpdatedCount Created/Updated custom PolicySet definitions</p>
 "@)
     }
     #endregion ChangeTrackingCustomPolicySet
@@ -13122,7 +13584,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $policyAssignmentsCreatedOrUpdatedCount Created/Updated Policy assignments</span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $policyAssignmentsCreatedOrUpdatedCount Created/Updated Policy assignments</p>
 "@)
     }
     #endregion ChangeTrackingPolicyAssignments
@@ -13268,7 +13730,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $customRoleDefinitionsCreatedOrUpdatedCount Created/Updated custom Role definitions</span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $customRoleDefinitionsCreatedOrUpdatedCount Created/Updated custom Role definitions</p>
 "@)
     }
     #endregion ChangeTrackingCustomRoles
@@ -13441,7 +13903,7 @@ tf.init();}}
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $customRoleDefinitionsCreatedOrUpdatedCount Created/Updated custom Role definitions</span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $customRoleDefinitionsCreatedOrUpdatedCount Created/Updated custom Role definitions</p>
 "@)
     }
     #endregion ChangeTrackingRoleAssignments
@@ -13565,7 +14027,7 @@ tf.init();}}
         }
         else {
             [void]$htmlTenantSummary.AppendLine(@"
-<p><i class="padlxx fa fa-ban" aria-hidden="true"></i> <span class="valignMiddle"> $resourcesCreatedOrChangedCount Created/Changed Resources</span></p>
+                <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> $resourcesCreatedOrChangedCount Created/Changed Resources</p>
 "@)
         }
         #endregion ChangeTrackingResources
@@ -13602,7 +14064,7 @@ tf.init();}}
         $tfCount = $namingPolicyCount
         $htmlTableId = 'TenantSummary_NamingPolicy'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicy"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policydefinition.svg"> <span class="valignMiddle"><b>Policy</b> $($namingPolicyCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicy"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policydefinition.svg"> <span class="valignMiddle">Policy $($namingPolicyCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -13704,7 +14166,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policydefinition.svg"> <span class="valignMiddle">Policy $($namingPolicyCount) Naming findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policydefinition.svg"> Policy $($namingPolicyCount) Naming findings</p>
 "@)
     }
 
@@ -13713,7 +14175,7 @@ extensions: [{ name: 'sort' }]
         $tfCount = $namingPolicySetCount
         $htmlTableId = 'TenantSummary_NamingPolicySet'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicySet"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policysetdefinition.svg"> <span class="valignMiddle"><b>PolicySet</b> $($namingPolicySetCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicySet"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policysetdefinition.svg"> <span class="valignMiddle">PolicySet $($namingPolicySetCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -13815,7 +14277,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policysetdefinition.svg"> <span class="valignMiddle">PolicySet $($namingPolicySetCount) Naming findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policysetdefinition.svg"> PolicySet $($namingPolicySetCount) Naming findings</p>
 "@)
     }
 
@@ -13824,7 +14286,7 @@ extensions: [{ name: 'sort' }]
         $tfCount = $namingPolicyAssignmentCount
         $htmlTableId = 'TenantSummary_NamingPolicyAssignment'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicyAssignment"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policyassignment.svg"> <span class="valignMiddle"><b>Policy assignment</b> $($namingPolicyAssignmentCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingPolicyAssignment"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policyassignment.svg"> <span class="valignMiddle">Policy assignment $($namingPolicyAssignmentCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -13926,7 +14388,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policyassignment.svg"> <span class="valignMiddle">Policy assignment $($namingPolicyAssignmentCount) Naming findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policyassignment.svg"> Policy assignment $($namingPolicyAssignmentCount) Naming findings</p>
 "@)
     }
 
@@ -13935,7 +14397,7 @@ extensions: [{ name: 'sort' }]
         $tfCount = $namingManagementGroupCount
         $htmlTableId = 'TenantSummary_NamingManagementGroup'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingManagementGroup"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle"><b>Management Group</b> $($namingManagementGroupCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingManagementGroup"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">Management Group $($namingManagementGroupCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -14021,7 +14483,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">Management Group $($namingManagementGroupCount) Naming findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Management Group $($namingManagementGroupCount) Naming findings</p>
 "@)
     }
 
@@ -14031,7 +14493,7 @@ extensions: [{ name: 'sort' }]
         $tfCount = $namingSubscriptionCount
         $htmlTableId = 'TenantSummary_NamingSubscription'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingSubscription"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle"><b>Subscription</b> $($namingSubscriptionCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingSubscription"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle">Subscription $($namingSubscriptionCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -14116,7 +14578,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle">Subscription $($namingSubscriptionCount) Naming findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> Subscription $($namingSubscriptionCount) Naming findings</p>
 "@)
     }
 
@@ -14126,7 +14588,7 @@ extensions: [{ name: 'sort' }]
         $tfCount = $namingRoleCount
         $htmlTableId = 'TenantSummary_NamingRole'
         [void]$htmlTenantSummary.AppendLine(@"
-<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingRole"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> <span class="valignMiddle"><b>RBAC</b> $($namingRoleCount) Naming findings</span></button>
+<button onclick="loadtf$("func_$htmlTableId")()" type="button" class="collapsible" id="buttonTenantSummary_NamingRole"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> <span class="valignMiddle">RBAC $($namingRoleCount) Naming findings</span></button>
 <div class="content TenantSummary">
 <i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('$htmlTableId');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('$htmlTableId');">comma</a>
 <table id="$htmlTableId" class="summaryTable">
@@ -14211,7 +14673,7 @@ extensions: [{ name: 'sort' }]
     }
     else {
         [void]$htmlTenantSummary.AppendLine(@"
-<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> <span class="valignMiddle">RBAC $($namingRoleCount) Naming Findings</span></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> RBAC $($namingRoleCount) Naming Findings</p>
 "@)
     }
 

@@ -254,14 +254,23 @@ function processDataCollection {
 
     #region SUBSCRIPTION
     Write-Host ' CustomDataCollection Subscriptions'
-    $subsExcludedStateCount = ($outOfScopeSubscriptions.where( { $_.outOfScopeReason -like 'State*' } )).Count
-    $subsExcludedWhitelistCount = ($outOfScopeSubscriptions.where( { $_.outOfScopeReason -like 'QuotaId*' } )).Count
-    if ($subsExcludedStateCount -gt 0) {
-        Write-Host "  CustomDataCollection $($subsExcludedStateCount) Subscriptions excluded (State != enabled)"
+    # $subsExcludedStateCount = ($outOfScopeSubscriptions.where( { $_.outOfScopeReason -like 'State*' } )).Count
+    # $subsExcludedWhitelistCount = ($outOfScopeSubscriptions.where( { $_.outOfScopeReason -like 'QuotaId*' } )).Count
+    # if ($subsExcludedStateCount -gt 0) {
+    #     Write-Host "  CustomDataCollection $($subsExcludedStateCount) Subscriptions excluded (State != enabled)"
+    # }
+    # if ($subsExcludedWhitelistCount -gt 0) {
+    #     Write-Host "  CustomDataCollection $($subsExcludedWhitelistCount) Subscriptions excluded (not in quotaId whitelist: '$($SubscriptionQuotaIdWhitelist -join ', ')' OR is AAD_ quotaId)"
+    # }
+
+    if ($outOfScopeSubscriptions.Count -gt 0) {
+        Write-Host "  CustomDataCollection $($outOfScopeSubscriptions.Count) Subscriptions excluded" -ForegroundColor yellow
+        $outOfScopeSubscriptionsGroupedByOutOfScopeReason = $outOfScopeSubscriptions | Group-Object -Property outOfScopeReason
+        foreach ($exclusionreason in $outOfScopeSubscriptionsGroupedByOutOfScopeReason) {
+            Write-Host "   $($exclusionreason.Count): $($exclusionreason.Name)"
+        }
     }
-    if ($subsExcludedWhitelistCount -gt 0) {
-        Write-Host "  CustomDataCollection $($subsExcludedWhitelistCount) Subscriptions excluded (not in quotaId whitelist: '$($SubscriptionQuotaIdWhitelist -join ', ')' OR is AAD_ quotaId)"
-    }
+
     Write-Host " CustomDataCollection Subscriptions will process $subsToProcessInCustomDataCollectionCount of $childrenSubscriptionsCount"
 
     $startSubLoop = Get-Date
@@ -354,6 +363,13 @@ function processDataCollection {
                 $htDoARMRoleAssignmentScheduleInstances = $using:htDoARMRoleAssignmentScheduleInstances
                 $htDefenderEmailContacts = $using:htDefenderEmailContacts
                 $arrayVNets = $using:arrayVNets
+                $arrayPrivateEndPoints = $using:arrayPrivateEndPoints
+                $htResourceProvidersRef = $using:htResourceProvidersRef
+                $arrayPrivateEndPointsFromResourceProperties = $using:arrayPrivateEndPointsFromResourceProperties
+                $htResourcePropertiesConvertfromJSONFailed = $using:htResourcePropertiesConvertfromJSONFailed
+                $htAvailablePrivateEndpointTypes = $using:htAvailablePrivateEndpointTypes
+                $arrayAdvisorScores = $using:arrayAdvisorScores
+                #$htResourcesWithProperties = $using:htResourcesWithProperties
                 #other
                 $function:addRowToTable = $using:funcAddRowToTable
                 $function:namingValidation = $using:funcNamingValidation
@@ -382,6 +398,8 @@ function processDataCollection {
                 $function:dataCollectionClassicAdministratorsSub = $using:funcDataCollectionClassicAdministratorsSub
                 $function:dataCollectionDefenderEmailContacts = $using:funcDataCollectionDefenderEmailContacts
                 $function:dataCollectionVNets = $using:funcDataCollectionVNets
+                $function:dataCollectionPrivateEndpoints = $using:funcDataCollectionPrivateEndpoints
+                $function:dataCollectionAdvisorScores = $using:funcDataCollectionAdvisorScores
                 #endregion UsingVARs
 
                 $addRowToTableDone = $false
@@ -435,9 +453,14 @@ function processDataCollection {
                         #defenderEmailContacts
                         DataCollectionDefenderEmailContacts @baseParameters
 
+                        #advisorScores
+                        DataCollectionAdvisorScores @baseParameters
+
                         if (-not $azAPICallConf['htParameters'].NoNetwork) {
                             #VNets
                             DataCollectionVNets @baseParameters
+                            #PE
+                            DataCollectionPrivateEndpoints @baseParameters
                         }
 
                         #diagnostics
@@ -639,7 +662,7 @@ function processDataCollection {
                     try {
                         $previous = Get-ChildItem -Path $outputPath -Filter "*$($ManagementGroupId)_ResourcesAll.csv" | Sort-Object -Descending -Property LastWriteTime | Select-Object -First 1 -ErrorAction Stop
                         $importPrevious = Import-Csv -LiteralPath "$($outputPath)$($DirectorySeparatorChar)$($previous.Name)" -Encoding utf8 -Delimiter $CsvDelimiter | Select-Object -ExpandProperty id
-                        Write-Host " Import previous ($($previous.Name)) duration: $((New-TimeSpan -Start $startImportPrevious -End (Get-Date)).TotalSeconds)"
+                        Write-Host " Import previous ($($previous.Name)) duration: $((New-TimeSpan -Start $startImportPrevious -End (Get-Date)).TotalSeconds) seconds"
                     }
                     catch {
                         Write-Host " FAILED: importing previous CSV '$($outputPath)$($DirectorySeparatorChar)$($previous.Name)' OR it does not exist (*$($ManagementGroupId)_ResourcesAll.csv)"
@@ -849,10 +872,10 @@ function processDataCollection {
 
                 if ($arrayResourceFluctuationFinal.Count -gt 0 -and $doResourceFluctuation) {
                     #DataCollection Export of Resource fluctuation
-                    Write-Host "Exporting ResourceFluctuation CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuation.csv'"
+                    Write-Host " Exporting ResourceFluctuation CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuation.csv'"
                     $arrayResourceFluctuationFinal | Sort-Object -Property ResourceType | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuation.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
 
-                    Write-Host "Exporting ResourceFluctuation detailed CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuationDetailed.csv'"
+                    Write-Host " Exporting ResourceFluctuation detailed CSV '$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuationDetailed.csv'"
                     $arrayAddedAndRemoved | Sort-Object -Property Resource | Export-Csv -Path "$($outputPath)$($DirectorySeparatorChar)$($fileName)_ResourceFluctuationDetailed.csv" -Delimiter "$csvDelimiter" -NoTypeInformation
                 }
                 Write-Host "Process Resource fluctuation duration: $((New-TimeSpan -Start $start -End (Get-Date)).TotalSeconds) seconds"

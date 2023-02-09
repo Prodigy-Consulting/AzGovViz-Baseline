@@ -1,4 +1,4 @@
-# AzGovViz v6_major_20221023_1
+# AzGovViz v6_major_20221213_1
 # First things first:
 # 1. Replace <YourServiceConnection> with the name of your service connection
 # 2. Replace <YourManagementGroupId> with the your ManagementGroupId
@@ -17,6 +17,7 @@ parameters:
     #     - Microsoft.VirtualMachineImages/imageTemplates
     default:
       - microsoft.web/certificates
+      - microsoft.chaos/chaosexperiments
 
   # Processes only Subscriptions that startWith the given QuotaIds
   - name: SubscriptionQuotaIdWhitelistParameters
@@ -59,7 +60,7 @@ variables:
   # The Management Group ID for the script to process
   - name: ManagementGroupId
     # String | example: value: 'MyManagementGroupId'
-    value: '<YourManagementGroupId>' #provide the Management Group Id, not the displayName
+    value: '<YourManagementGroupId>' #ATTENTION! Provide the Management Group Id, not the displayName
 
 ### Default Variables - Modify as Needed
 
@@ -257,7 +258,7 @@ variables:
 
   # Define the number of script blocks running in parallel. Leveraging PowerShell Core´s parallel capability you can define the ThrottleLimit (default=5)
   - name: ThrottleLimit
-    # Integer | Default = 5 | example: value: 10
+    # Integer | Default = 10 | example: value: 11
     value:
 
   # Will show memory usage

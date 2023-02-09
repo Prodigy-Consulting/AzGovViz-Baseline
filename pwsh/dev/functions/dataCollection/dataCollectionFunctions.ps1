@@ -58,6 +58,50 @@ function dataCollectionDefenderPlans {
 }
 $funcDataCollectionDefenderPlans = $function:dataCollectionDefenderPlans.ToString()
 
+
+function dataCollectionAdvisorScores {
+    [CmdletBinding()]Param(
+        [string]$scopeId,
+        [string]$scopeDisplayName,
+        $SubscriptionQuotaId
+    )
+
+    $currentTask = "Getting Advisor Scores for Subscription: '$($scopeDisplayName)' ('$scopeId') [quotaId:'$SubscriptionQuotaId']"
+    $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)/subscriptions/$($scopeId)/providers/Microsoft.Advisor/advisorScore?api-version=2020-07-01-preview"
+    $method = 'GET'
+    $advisorScoreResult = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection' -skipOnErrorCode 404
+
+    if ($advisorScoreResult -eq 'SubScriptionNotRegistered' -or $advisorScoreResult -eq 'DisallowedProvider') {
+    }
+    else {
+        if ($advisorScoreResult -like 'azgvzerrorMessage_*') {
+
+        }
+        else {
+            if ($advisorScoreResult.Count -gt 0) {
+                foreach ($entry in $advisorScoreResult) {
+                    #Write-Host ($entry | ConvertTo-Json -Depth 99)
+                    if ($entry.Name) {
+                        $objectGuid = [System.Guid]::empty
+                        if ([System.Guid]::TryParse($entry.Name, [System.Management.Automation.PSReference]$ObjectGuid)) {
+                        }
+                        else {
+                            $null = $script:arrayAdvisorScores.Add([PSCustomObject]@{
+                                    subscriptionId      = $scopeId
+                                    subscriptionName    = $scopeDisplayName
+                                    subscriptionQuotaId = $SubscriptionQuotaId
+                                    category            = $entry.Name
+                                    score               = $entry.properties.lastRefreshedScore.score
+                                })
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+$funcDataCollectionAdvisorScores = $function:dataCollectionAdvisorScores.ToString()
+
 function dataCollectionDefenderEmailContacts {
     [CmdletBinding()]Param(
         [string]$scopeId,
@@ -179,6 +223,31 @@ function dataCollectionVNets {
     }
 }
 $funcDataCollectionVNets = $function:dataCollectionVNets.ToString()
+
+function dataCollectionPrivateEndpoints {
+    [CmdletBinding()]Param(
+        [string]$scopeId,
+        [string]$scopeDisplayName,
+        $SubscriptionQuotaId
+    )
+
+    $currentTask = "Getting Private Endpoints for Subscription: '$($scopeDisplayName)' ('$scopeId') [quotaId:'$SubscriptionQuotaId']"
+    #https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings
+    $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)/subscriptions/$($scopeId)/providers/Microsoft.Network/privateEndpoints?api-version=2022-05-01"
+    $method = 'GET'
+    $privateEndpointsResult = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection' -unhandledErrorAction Continue
+
+    # if ($privateEndpointsResult -eq 'someError') {
+    # }
+    # else {
+    if ($privateEndpointsResult.Count -gt 0) {
+        foreach ($pe in $privateEndpointsResult) {
+            $null = $script:arrayPrivateEndPoints.Add($pe)
+        }
+    }
+    #}
+}
+$funcDataCollectionPrivateEndpoints = $function:dataCollectionPrivateEndpoints.ToString()
 
 function dataCollectionDiagnosticsSub {
     [CmdletBinding()]Param(
@@ -398,7 +467,27 @@ function dataCollectionStorageAccounts {
     $storageAccountsSubscriptionResult = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection'
 
     foreach ($storageAccount in $storageAccountsSubscriptionResult) {
-        $null = $script:storageAccounts.Add($storageAccount)
+
+        $dtisostart = Get-Date (Get-Date).AddHours(-1).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
+        $dtisoend = Get-Date (Get-Date).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
+        $currentTask = "Getting Storage Account '$($storageAccount.name)' UsedCapacity ('$($scopeDisplayName)' ('$scopeId') [quotaId:'$subscriptionQuotaId'])"
+        $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)$($storageAccount.id)/providers/microsoft.Insights/metrics?timespan=$($dtisostart)/$($dtisoend)&interval=FULL&metricnames=UsedCapacity&aggregation=average&metricNamespace=microsoft.storage%2Fstorageaccounts&validatedimensions=false&api-version=2019-07-01"
+        $method = 'GET'
+        $storageAccountUsedCapacity = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection' -unhandledErrorAction Continue
+
+        $usedCapacity = 'n/a'
+        if ($storageAccountUsedCapacity.Count -gt 0) {
+            if (-not [string]::IsNullOrWhiteSpace($storageAccountUsedCapacity)) {
+                $usedCapacity = $storageAccountUsedCapacity.timeseries.data.average
+            }
+        }
+
+        $obj = [System.Collections.ArrayList]@()
+        $null = $obj.Add([PSCustomObject]@{
+                SA             = $storageAccount
+                SAUsedCapacity = $usedCapacity / 1024 / 1024 / 1024
+            })
+        $null = $script:storageAccounts.Add($obj)
     }
 }
 $funcDataCollectionStorageAccounts = $function:dataCollectionStorageAccounts.ToString()
@@ -412,14 +501,96 @@ function dataCollectionResources {
         $subscriptionQuotaId
     )
 
-    $currentTask = "Getting ResourceTypes for Subscription: '$($scopeDisplayName)' ('$scopeId') [quotaId:'$subscriptionQuotaId']"
-    $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)/subscriptions/$($scopeId)/resources?`$expand=createdTime,changedTime&api-version=2021-04-01"
+    #region resources LIST
+    $currentTask = "Getting Resources for Subscription: '$($scopeDisplayName)' ('$scopeId') [quotaId:'$subscriptionQuotaId']"
+    $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)/subscriptions/$($scopeId)/resources?`$expand=createdTime,changedTime,properties&api-version=2021-04-01"
     $method = 'GET'
     $resourcesSubscriptionResult = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection'
+    #Write-Host 'arm resList count:'$resourcesSubscriptionResult.Count
+    #endregion resources LIST
+
+    #region resources GET
+    if ($resourcesSubscriptionResult.Count -gt 0) {
+        $arrayResourcesWithProperties = [System.Collections.ArrayList]::Synchronized((New-Object System.Collections.ArrayList))
+        $resourcesSubscriptionResult | ForEach-Object -Parallel {
+            $resource = $_
+
+            #region using
+            $arrayResourcesWithProperties = $using:arrayResourcesWithProperties
+            $htResourceProvidersRef = $using:htResourceProvidersRef
+            $arrayPrivateEndPointsFromResourceProperties = $using:arrayPrivateEndPointsFromResourceProperties
+            $htAvailablePrivateEndpointTypes = $using:htAvailablePrivateEndpointTypes
+            $htResourcePropertiesConvertfromJSONFailed = $using:htResourcePropertiesConvertfromJSONFailed
+            $scopeId = $using:scopeId
+            $scopeDisplayName = $using:scopeDisplayName
+            $ChildMgParentNameChainDelimited = $using:ChildMgParentNameChainDelimited
+            $azAPICallConf = $using:azAPICallConf
+            #$htResourcesWithProperties = $using:htResourcesWithProperties
+            #endregion using
+
+            if ($htAvailablePrivateEndpointTypes.(($resource.type).ToLower())) {
+                #Write-Host "$($resource.type) in `$htAvailablePrivateEndpointTypes"
+                if ($htResourceProvidersRef.($resource.type)) {
+                    if ($htResourceProvidersRef.($resource.type).APIDefault) {
+                        $apiVersionToUse = $htResourceProvidersRef.($resource.type).APIDefault
+                        $apiRef = 'default'
+                    }
+                    else {
+                        $apiVersionToUse = $htResourceProvidersRef.($resource.type).APILatest
+                        $apiRef = 'latest'
+                    }
+
+                    $currentTask = "Getting Resource Properties API-version: '$apiVersionToUse' ($apiRef); ResourceType: '$($resource.type)'; ResourceId: '$($resource.id)'"
+                    $uri = "$($azAPICallConf['azAPIEndpointUrls'].ARM)$($resource.id)?api-version=$apiVersionToUse"
+                    $method = 'GET'
+                    $resourceResult = AzAPICall -AzAPICallConfiguration $azAPICallConf -uri $uri -method $method -currentTask $currentTask -caller 'CustomDataCollection' -listenOn Content -unhandledErrorAction Continue
+
+                    if ($resourceResult -ne 'ResourceOrResourcegroupNotFound' -and $resourceResult -ne 'convertfromJSONError') {
+                        $null = $script:arrayResourcesWithProperties.Add($resourceResult)
+                        #$script:htResourcesWithProperties.($resourceResult.id) = $resourceResult
+                        if ($resourceResult.properties.privateEndpointConnections.Count -gt 0) {
+                            foreach ($privateEndpointConnection in $resourceResult.properties.privateEndpointConnections) {
+                                $resourceResultIdSplit = $resourceResult.id -split '/'
+                                $null = $script:arrayPrivateEndPointsFromResourceProperties.Add([PSCustomObject]@{
+                                        ResourceName              = $resourceResult.name
+                                        ResourceType              = $resourceResult.type
+                                        ResourceId                = $resourceResult.id
+                                        ResourceResourceGroup     = $resourceResultIdSplit[4]
+                                        ResourceSubscriptionId    = $scopeId
+                                        ResourceSubscriptionName  = $scopeDisplayName
+                                        ResourceMGPath            = $ChildMgParentNameChainDelimited
+                                        privateEndpointConnection = $privateEndpointConnection
+                                    })
+                            }
+                        }
+                    }
+                    else {
+                        if ($resourceResult -eq 'convertfromJSONError') {
+                            $script:htResourcePropertiesConvertfromJSONFailed.($resource.id) = @{}
+                        }
+                    }
+                }
+                else {
+                    Write-Host "[AzGovViz] Please file an issue at the AzGovViz GitHub repository (aka.ms/AzGovViz) and provide this information (scrub subscription Id and company identifyable names): No API-version matches! ResourceType: '$($resource.type)'; ResourceId: '$($resource.id)' - Thank you!" -ForegroundColor DarkRed
+                }
+            }
+            else {
+                #Write-Host "$($resource.type) not in `$htAvailablePrivateEndpointTypes"
+            }
+
+        } -ThrottleLimit $azAPICallConf['htParameters'].ThrottleLimit
+    }
+    #Write-Host 'arm resGet count:' $arrayResourcesWithProperties.Count
+    #endregion resources GET
+
+    # if ($resourcesSubscriptionResult.Count -ne $arrayResourcesWithProperties.Count) {
+    #     Write-Host " FYI: Getting Resources for Subscription: '$($scopeDisplayName)' ('$scopeId') [quotaId:'$subscriptionQuotaId']  - ARM list count: $($resourcesSubscriptionResult.Count); ARG get count: $($arrayResourcesWithProperties.Count)"
+    # }
 
     #region PSRule
     if ($azAPICallConf['htParameters'].DoPSRule -eq $true) {
         if ($resourcesSubscriptionResult.Count -gt 0) {
+
             $startPSRule = Get-Date
             try {
                 <#
@@ -428,10 +599,10 @@ function dataCollectionResources {
                 Import-Module (Join-Path $path -ChildPath 'PSRule.Rules.Azure-nodeps.psd1')
                 #>
                 if ($azAPICallConf['htParameters'].PSRuleFailedOnly -eq $true) {
-                    $psruleResults = $resourcesSubscriptionResult | Invoke-PSRule -Module psrule.rules.Azure -As Detail -Culture en-us -WarningAction Ignore -ErrorAction SilentlyContinue -Outcome Fail, Error
+                    $psruleResults = $arrayResourcesWithProperties | Invoke-PSRule -Module psrule.rules.Azure -As Detail -Culture en-us -WarningAction Ignore -ErrorAction SilentlyContinue -Outcome Fail, Error
                 }
                 else {
-                    $psruleResults = $resourcesSubscriptionResult | Invoke-PSRule -Module psrule.rules.Azure -As Detail -Culture en-us -WarningAction Ignore -ErrorAction SilentlyContinue
+                    $psruleResults = $arrayResourcesWithProperties | Invoke-PSRule -Module psrule.rules.Azure -As Detail -Culture en-us -WarningAction Ignore -ErrorAction SilentlyContinue
                 }
             }
             catch {
@@ -1348,20 +1519,18 @@ function dataCollectionResourceLocks {
         $htTemp.SubscriptionLocksReadOnlyCount = $locksReadOnlySubscriptionCount
 
         #resourceGroups
-        $resourceGroupsLocksCannotDeleteCount = ($arrayResourceGroupsCannotDeleteLock).Count
-        $htTemp.ResourceGroupsLocksCannotDeleteCount = $resourceGroupsLocksCannotDeleteCount
-
-        $resourceGroupsLocksReadOnlyCount = ($arrayResourceGroupsReadOnlyLock).Count
-        $htTemp.ResourceGroupsLocksReadOnlyCount = $resourceGroupsLocksReadOnlyCount
+        $htTemp.ResourceGroupsLocksCannotDeleteCount = $arrayResourceGroupsCannotDeleteLock.Count
         $htTemp.ResourceGroupsLocksCannotDelete = $arrayResourceGroupsCannotDeleteLock
 
-        #resources
-        $resourcesLocksCannotDeleteCount = ($arrayResourcesCannotDeleteLock).Count
-        $htTemp.ResourcesLocksCannotDeleteCount = $resourcesLocksCannotDeleteCount
+        $htTemp.ResourceGroupsLocksReadOnlyCount = $arrayResourceGroupsReadOnlyLock.Count
+        $htTemp.ResourceGroupsLocksReadOnly = $arrayResourceGroupsReadOnlyLock
 
-        $resourcesLocksReadOnlyCount = ($arrayResourcesReadOnlyLock).Count
-        $htTemp.ResourcesLocksReadOnlyCount = $resourcesLocksReadOnlyCount
+        #resources
+        $htTemp.ResourcesLocksCannotDeleteCount = $arrayResourcesCannotDeleteLock.Count
         $htTemp.ResourcesLocksCannotDelete = $arrayResourcesCannotDeleteLock
+
+        $htTemp.ResourcesLocksReadOnlyCount = $arrayResourcesReadOnlyLock.Count
+        $htTemp.ResourcesLocksReadOnly = $arrayResourcesReadOnlyLock
 
         $script:htResourceLocks.($scopeId) = $htTemp
     }
@@ -1887,7 +2056,12 @@ function dataCollectionPolicyDefinitions {
                                         $htTemp.ALZState = 'upToDate'
                                     }
                                     else {
-                                        $htTemp.ALZState = 'outDated'
+                                        if ($alzpolicies.($alzPolicyHashes.($stringHash).policyName).latestVersion -like '*-deprecated') {
+                                            $htTemp.ALZState = 'deprecated'
+                                        }
+                                        else {
+                                            $htTemp.ALZState = 'outDated'
+                                        }
                                     }
                                 }
                                 else {
@@ -1920,7 +2094,12 @@ function dataCollectionPolicyDefinitions {
                                         $htTemp.ALZState = 'upToDate'
                                     }
                                     else {
-                                        $htTemp.ALZState = 'outDated'
+                                        if ($alzPolicies.($scopePolicyDefinition.name).latestVersion -like '*-deprecated') {
+                                            $htTemp.ALZState = 'deprecated'
+                                        }
+                                        else {
+                                            $htTemp.ALZState = 'outDated'
+                                        }
                                     }
                                 }
                                 else {
@@ -2171,7 +2350,12 @@ function dataCollectionPolicySetDefinitions {
                                     $htTemp.ALZState = 'upToDate'
                                 }
                                 else {
-                                    $htTemp.ALZState = 'outDated'
+                                    if ($alzPolicySetHashes.($stringHash).latestVersion -like '*-deprecated') {
+                                        $htTemp.ALZState = 'deprecated'
+                                    }
+                                    else {
+                                        $htTemp.ALZState = 'outDated'
+                                    }
                                 }
                                 $htTemp.ALZLatestVer = $alzPolicySetHashes.($stringHash).latestVersion
                             }
@@ -2197,7 +2381,12 @@ function dataCollectionPolicySetDefinitions {
                                     $htTemp.ALZState = 'upToDate'
                                 }
                                 else {
-                                    $htTemp.ALZState = 'outDated'
+                                    if ($alzPolicySets.($scopePolicySetDefinition.name).latestVersion -like '*-deprecated') {
+                                        $htTemp.ALZState = 'deprecated'
+                                    }
+                                    else {
+                                        $htTemp.ALZState = 'outDated'
+                                    }
                                 }
                                 $htTemp.ALZLatestVer = $alzPolicySets.($scopePolicySetDefinition.name).latestVersion
                             }

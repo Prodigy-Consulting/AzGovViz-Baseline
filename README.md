@@ -31,37 +31,61 @@ Included in the Microsoft Cloud Adoption Framework´s [Strategy-Plan-Ready-Gov](
 Listed as [security monitoring tool](https://docs.microsoft.com/en-us/azure/architecture/framework/security/monitor-tools) in the Microsoft Well Architected Framework
 
 ## Content
-* [Release history](#release-history)
-* [Demo](#demo)
-  * [Media](#media)
-  * [Slideset](#slideset)
-* [Features](#features)
-* [Screenshots](#screenshots)
-* [Outputs](#outputs)
-* __[AzGovViz Setup Guide](#azgovviz-setup-guide)__
-* [Technical documentation](#technical-documentation)
-  * [Permissions overview](#permissions-overview)
-  * [Required permissions in Azure](#required-permissions-in-azure)
-  * [Required permissions in Azure Active Directory](#required-permissions-in-azure-active-directory)
-  * [PowerShell](#powershell)
-  * [Parameters](#parameters)
-  * [API reference](#api-reference)
-* [Integrate with AzOps](#integrate-with-azops)
-* [Integrate PSRule for Azure](#integrate-psrule-for-azure)
-* [Stats](#stats)
-* [Security](#security)
-* [Known issues](#known-issues)
-* [Facts](#facts)
-* [Contribution](#contribution)
-* [AzAdvertizer](#azadvertizer)
-* [AzADServicePrincipalInsights](#azadserviceprincipalinsights)
-* [Closing note](#closing-note)
+- [AzGovViz - Azure Governance Visualizer](#azgovviz---azure-governance-visualizer)
+  - [Mission](#mission)
+  - [AzGovViz @ Microsoft CAF \& WAF](#azgovviz--microsoft-caf--waf)
+    - [Microsoft Cloud Adoption Framework (CAF)](#microsoft-cloud-adoption-framework-caf)
+    - [Microsoft Well Architected Framework (WAF)](#microsoft-well-architected-framework-waf)
+  - [Content](#content)
+  - [Release history](#release-history)
+  - [Demo](#demo)
+    - [Media](#media)
+    - [Slideset](#slideset)
+  - [Features](#features)
+  - [Screenshots](#screenshots)
+  - [Outputs](#outputs)
+  - [AzGovViz Setup Guide](#azgovviz-setup-guide)
+  - [Technical documentation](#technical-documentation)
+    - [Permissions overview](#permissions-overview)
+    - [Required permissions in Azure](#required-permissions-in-azure)
+    - [Required permissions in Azure Active Directory](#required-permissions-in-azure-active-directory)
+    - [PowerShell](#powershell)
+    - [Parameters](#parameters)
+    - [API reference](#api-reference)
+  - [Integrate with AzOps](#integrate-with-azops)
+  - [Integrate PSRule for Azure](#integrate-psrule-for-azure)
+  - [Stats](#stats)
+    - [How/What?](#howwhat)
+  - [Security](#security)
+  - [Known issues](#known-issues)
+  - [Facts](#facts)
+  - [Contribution](#contribution)
+  - [AzAdvertizer](#azadvertizer)
+  - [AzADServicePrincipalInsights](#azadserviceprincipalinsights)
+  - [Closing Note](#closing-note)
 
 ## Release history
 
-__Changes__ (2022-Nov-01 / Minor)
+__Changes__ (2023-Feb-03 / Major)
 
-* Updated Storage Account analysis to handle permission issues on databricks storage accounts
+* Update 'Orphaned Resources' feature
+  * subscriptions in a tenant can have varying currency / output 'cost savings' per currency
+* Update 'Storage Account Analysis' feature
+  * add 'Used Capacity' metric
+* Fix 'Network - Virtual Network Peerings' feature CSV output
+  * join Address prefixes
+  * join DNS Servers
+* Fix 'PIM Eligibility' feature
+  * orphaned subscription scopes may be returned as PIM onboarded scopes, skip subscriptions that have not been returned from the initial list subscriptions call
+* Fix 'Azure Landing Zones Policy Version Checker' feature
+  * deprecated ALZ policy/set resolve to state 'deprecated'
+* Export Resource Locks details as CSV
+
+Passed tests: Powershell Core 7.3.1 on Windows  
+Passed tests: Powershell Core 7.2.7 Azure DevOps hosted agent ubuntu-22.04  
+Passed tests: Powershell Core 7.2.7 Github Actions hosted agent ubuntu-latest  
+Passed tests: Powershell Core 7.2.6 GitHub Codespaces mcr.microsoft.com/powershell:latest  
+Passed tests: AzureCloud, AzureUSGovernment, AzureChinaCloud
 
 [Full release history](history.md)
 
@@ -152,7 +176,7 @@ Short presentation on AzGovViz [[download](slides/AzGovViz_intro.pdf)]
       * Determine if the Role assignmet's Role definition is capable to write Role assignments
   * PIM (Privileged Identity Management) eligibility for Role assignments
     * Get a full report of all PIM eligible Role assignments for Management Groups and Subscriptions, including resolved User members of AAD Groups that have assigned eligibility
-    * &#x1F4A1; Note: this feature requires you to execute as Service Principal with `Application` API permission `PrivilegedAccess.Read.AzureResources``PrivilegedAccess.Read.AzureResources`
+    * &#x1F4A1; Note: this feature requires you to execute as Service Principal with `Application` API permission `PrivilegedAccess.Read.AzureResources`
   * Role assignments ClassicAdministrators
   * Security & Best practice analysis
     * Existence of custom Role definition that reflect 'Owner' permissions
@@ -189,6 +213,7 @@ Short presentation on AzGovViz [[download](slides/AzGovViz_intro.pdf)]
         * Explicit Resource Provider state per Subscription
       * Resource Locks
         * Aggregated insights for Lock and respective Lock-type usage on Subscriptions, ResourceGroups and Resources
+        * CSV output detailed / each scope that has a lock applied (at scope)
     * Resource fluctuation - added/removed resources since previous AzGovViz execution
       * Aggregated insights on resource fluctuation add/remove (HTML)
       * Detailed insights on resource fluctuation add/remove (CSV)
@@ -204,12 +229,15 @@ Short presentation on AzGovViz [[download](slides/AzGovViz_intro.pdf)]
     * Summary of all UserAssigned Managed Identities assigned to Resources
     * Summary of Resources that have an UserAssigned Managed Identity assigned
   * [Integrate PSRule for Azure](#integrate-psrule-for-azure)
+    * __Pausing 'PSRule for Azure' integration__. AzGovViz leveraged the Invoke-PSRule cmdlet, but there are certain [resource types](https://github.com/Azure/PSRule.Rules.Azure/blob/ab0910359c1b9826d8134041d5ca997f6195fc58/src/PSRule.Rules.Azure/PSRule.Rules.Azure.psm1#L1582) where also child resources need to be queried to achieve full rule evaluation. 
     * Well-Architected Framework aligned best practice analysis for resources, including guidance for remediation
   * Storage Account Access Analysis
     * Provides insights on Storage Accounts with focus on anonymous access (containers/blobs and 'Static website' feature)
 * __Network__
   * Virtual Networks
+  * Subnets
   * Virtual Network Peerings
+  * Private Endpoints
 * __Diagnostics__
   * Management Groups Diagnostic settings report
     * Management Group, Diagnostic setting name, target type (LA, SA, EH), target Id, Log Category status
@@ -266,7 +294,7 @@ HTML file
 __HierarchyMap__  
 ![alt text](img/HierarchyMap.png "HierarchyMap")  
 __TenantSummary__  
-![alt text](img/TenantSummary.png "TenantSummary")  
+![alt text](img/TenantSummary_20221129.png "TenantSummary")  
 __DefinitionInsights__  
 ![alt text](img/DefinitionInsights.png "DefinitionInsights") 
 __ScopeInsights__  
@@ -408,7 +436,7 @@ This permission is <b>mandatory</b> in each and every scenario!
 </table>
 
 Screenshot Azure Portal    
-![alt text](img/aadpermissionsportal.jpg "Permissions in Azure Active Directory")
+![alt text](img/aadpermissionsportal_4.jpg "Permissions in Azure Active Directory")
 
 ### PowerShell
 
@@ -465,7 +493,7 @@ AzAPICall resources:
   * ~~`-JsonExport`~~ `-NoJsonExport` - Do not enable export of ManagementGroup Hierarchy including all MG/Sub Policy/RBAC definitions, Policy/RBAC assignments and some more relevant information to JSON 
   * `-JsonExportExcludeResourceGroups` - JSON Export will not include ResourceGroups (Policy & Role assignments)
   * `-JsonExportExcludeResources`- JSON Export will not include Resources (Role assignments)
-  * `-LargeTenant` - A large tenant is a tenant with more than ~500 Subscriptions - the HTML output for large tenants simply becomes too big. Using this parameter the following parameters will be set: -PolicyAtScopeOnly $true, -RBACAtScopeOnly $true, -NoResourceProvidersDetailed $true, -NoScopeInsights $true
+  * `-LargeTenant` - A large tenant is a tenant with more than ~500 Subscriptions - the HTML output for large tenants simply becomes too big. Using this parameter the following parameters will be set: `-PolicyAtScopeOnly`, `-RBACAtScopeOnly`, `-NoResourceProvidersAtAll`, `-NoScopeInsights`
   * `-HtmlTableRowsLimit` - Although the parameter `-LargeTenant` was introduced recently, still the html output may become too large to be processed properly. The new parameter defines the limit of rows - if for the html processing part the limit is reached then the html table will not be created (csv and json output will still be created). Default rows limit is 20.000
   * `-AADGroupMembersLimit` - Defines the limit (default=500) of AAD Group members; For AAD Groups that have more members than the defined limit Group members will not be resolved 
   * `-NoResources` - Will speed up the processing time but information like Resource diagnostics capability, resource type stats, UserAssigned Identities assigned to Resources is excluded (featured for large tenants)
@@ -476,6 +504,7 @@ AzAPICall resources:
   * `-CriticalMemoryUsage` - Define at what percentage of memory usage the garbage collection should kick in (default=90)
   * `-ExcludedResourceTypesDiagnosticsCapable` - Resource Types to be excluded from processing analysis for diagnostic settings capability (default: microsoft.web/certificates)
   * PSRule for Azure
+    * __Pausing 'PSRule for Azure' integration__. AzGovViz leveraged the Invoke-PSRule cmdlet, but there are certain [resource types](https://github.com/Azure/PSRule.Rules.Azure/blob/ab0910359c1b9826d8134041d5ca997f6195fc58/src/PSRule.Rules.Azure/PSRule.Rules.Azure.psm1#L1582) where also child resources need to be queried to achieve full rule evaluation.
     * `-DoPSRule` - Execute [PSRule for Azure](https://azure.github.io/PSRule.Rules.Azure). Aggregated results are integrated in the HTML output, detailed results (per resource) are exported to CSV
     * `-PSRuleVersion` - Define the PSRule..Rules.Azure PowerShell module version, if undefined then 'latest' will be used
     * `-PSRuleFailedOnly` - PSRule for Azure will only report on failed resource (may save some space/noise). (e.g. `.\pwsh\AzGovVizParallel.ps1 -DoPSRule -PSRuleFailedOnly`)
@@ -489,64 +518,71 @@ AzAPICall resources:
   * `-StorageAccountAccessAnalysisSubscriptionTags` - Define Subscription tag names that should be added to the CSV output per Storage Account
   * `-StorageAccountAccessAnalysisStorageAccountTags` - Define Storage Account tag names that should be added to the CSV output per Storage Account
   * `-NoNetwork` - Do not execute Network analysis / Virtual Network and Virtual Network Peerings
+    * `-NetworkSubnetIPAddressUsageCriticalPercentage` - Warning level when certain percentage of IP addresses is used (default = 90%)
 
 ### API reference
 
 AzGovViz polls the following APIs
 
-| Endpoint | API version | API name |
-| --- | --- | --- |
-| MS Graph | beta | /groups/`aadGroupId`/transitiveMembers |
-| MS Graph | beta | /privilegedAccess/azureResources/resources |
-| MS Graph | beta | /privilegedAccess/azureResources/roleAssignments |
-| MS Graph | v1.0 | /applications |
-| MS Graph | v1.0 | /directoryObjects/getByIds |
-| MS Graph | v1.0 | /users |
-| MS Graph | v1.0 | /groups |
-| MS Graph | v1.0 | /servicePrincipals |
-| ARM | 2021-05-01-preview | /`resourceId`/providers/Microsoft.Insights/diagnosticSettingsCategories |
-| ARM | 2018-11-01-preview | /`scopeId`/providers/Microsoft.Blueprint/blueprints/`blueprintName` |
-| ARM | 2021-06-01 | /providers/Microsoft.Authorization/policyDefinitions |
-| ARM | 2021-06-01 | /providers/Microsoft.Authorization/policySetDefinitions |
-| ARM | 2020-02-01 | /providers/Microsoft.Management/getEntities |
-| ARM | 2021-06-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyAssignments |
-| ARM | 2021-06-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyDefinitions |
-| ARM | 2020-07-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyExemptions |
-| ARM | 2021-06-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policySetDefinitions |
-| ARM | 2015-07-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleAssignments |
-| ARM | 2020-10-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleAssignmentScheduleInstances |
-| ARM | 2018-07-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleDefinitions |
-| ARM | 2018-11-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Blueprint/blueprints |
-| ARM | 2019-11-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.CostManagement/query |
-| ARM | 2020-01-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/microsoft.insights/diagnosticSettings |
-| ARM | 2019-10-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.PolicyInsights/policyStates/latest/summarize |
-| ARM | 2020-05-01 | /providers/Microsoft.Management/managementGroups/`managementGroupId` |
-| ARM | 2020-02-01 | /providers/Microsoft.Management/managementGroups/`tenantId`/settings |
-| ARM | 2020-05-01 | /providers/Microsoft.Management/managementGroups |
-| ARM | 2021-03-01 | /providers/Microsoft.ResourceGraph/resources |
-| ARM | 2016-09-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/locks |
-| ARM | 2021-06-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyAssignments |
-| ARM | 2021-06-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyDefinitions |
-| ARM | 2020-07-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyExemptions |
-| ARM | 2021-06-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policySetDefinitions |
-| ARM | 2015-07-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignments |
-| ARM | 2020-10-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignmentScheduleInstances |
-| ARM | 2019-08-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignmentsUsageMetrics |
-| ARM | 2018-07-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleDefinitions |
-| ARM | 2018-11-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Blueprint/blueprintAssignments |
-| ARM | 2018-11-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Blueprint/blueprints |
-| ARM | 2019-11-01 | /subscriptions/`subscriptionId`/providers/Microsoft.CostManagement/query |
-| ARM | 2021-05-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Insights/diagnosticSettings |
-| ARM | 2019-10-01 | /subscriptions/`subscriptionId`/providers/Microsoft.PolicyInsights/policyStates/latest/summarize |
-| ARM | 2020-06-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Resources/tags/default |
-| ARM | 2018-06-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Security/pricings |
-| ARM | 2020-01-01 | /subscriptions/`subscriptionId`/providers/Microsoft.Security/securescores |
-| ARM | 2020-01-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Security/securityContacts |
-| ARM | 2019-10-01 | /subscriptions/`subscriptionId`/providers |
-| ARM | 2021-04-01 | /subscriptions/`subscriptionId`/resourcegroups |
-| ARM | 2021-04-01 | /subscriptions/`subscriptionId`/resources |
-| ARM | 2020-01-01 | /subscriptions |
-| ARM | 2020-01-01 | /tenants |
+| Endpoint | API version        | API name                                                                                                                               |
+| -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| MS Graph | beta               | /groups/`aadGroupId`/transitiveMembers                                                                                                 |
+| MS Graph | beta               | /privilegedAccess/azureResources/resources                                                                                             |
+| MS Graph | beta               | /privilegedAccess/azureResources/roleAssignments                                                                                       |
+| MS Graph | v1.0               | /applications                                                                                                                          |
+| MS Graph | v1.0               | /directoryObjects/getByIds                                                                                                             |
+| MS Graph | v1.0               | /users                                                                                                                                 |
+| MS Graph | v1.0               | /groups                                                                                                                                |
+| MS Graph | v1.0               | /servicePrincipals                                                                                                                     |
+| ARM      | 2021-05-01-preview | /`resourceId`/providers/Microsoft.Insights/diagnosticSettingsCategories                                                                |
+| ARM      | 2018-11-01-preview | /`scopeId`/providers/Microsoft.Blueprint/blueprints/`blueprintName`                                                                    |
+| ARM      | 2021-04-01         | /providers                                                                                                                             |
+| ARM      | 2021-06-01         | /providers/Microsoft.Authorization/policyDefinitions                                                                                   |
+| ARM      | 2021-06-01         | /providers/Microsoft.Authorization/policySetDefinitions                                                                                |
+| ARM      | 2020-02-01         | /providers/Microsoft.Management/getEntities                                                                                            |
+| ARM      | 2021-06-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyAssignments               |
+| ARM      | 2021-06-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyDefinitions               |
+| ARM      | 2020-07-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policyExemptions                |
+| ARM      | 2021-06-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/policySetDefinitions            |
+| ARM      | 2015-07-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleAssignments                 |
+| ARM      | 2020-10-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleAssignmentScheduleInstances |
+| ARM      | 2018-07-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Authorization/roleDefinitions                 |
+| ARM      | 2018-11-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.Blueprint/blueprints                          |
+| ARM      | 2019-11-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.CostManagement/query                          |
+| ARM      | 2020-01-01-preview | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/microsoft.insights/diagnosticSettings                   |
+| ARM      | 2019-10-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`/providers/Microsoft.PolicyInsights/policyStates/latest/summarize  |
+| ARM      | 2020-05-01         | /providers/Microsoft.Management/managementGroups/`managementGroupId`                                                                   |
+| ARM      | 2020-02-01         | /providers/Microsoft.Management/managementGroups/`tenantId`/settings                                                                   |
+| ARM      | 2020-05-01         | /providers/Microsoft.Management/managementGroups                                                                                       |
+| ARM      | 2021-03-01         | /providers/Microsoft.ResourceGraph/resources                                                                                           |
+| ARM      | 2020-01-01         | /subscriptions/`subscriptionId`/locations                                                                                              |
+| ARM      | 2020-07-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Advisor/advisorScore                                                               |
+| ARM      | 2016-09-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/locks                                                                |
+| ARM      | 2021-06-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyAssignments                                                    |
+| ARM      | 2021-06-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyDefinitions                                                    |
+| ARM      | 2020-07-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policyExemptions                                                     |
+| ARM      | 2021-06-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/policySetDefinitions                                                 |
+| ARM      | 2015-07-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignments                                                      |
+| ARM      | 2020-10-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignmentScheduleInstances                                      |
+| ARM      | 2019-08-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleAssignmentsUsageMetrics                                          |
+| ARM      | 2018-07-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Authorization/roleDefinitions                                                      |
+| ARM      | 2018-11-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Blueprint/blueprintAssignments                                                     |
+| ARM      | 2018-11-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Blueprint/blueprints                                                               |
+| ARM      | 2019-11-01         | /subscriptions/`subscriptionId`/providers/Microsoft.CostManagement/query                                                               |
+| ARM      | 2021-05-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Insights/diagnosticSettings                                                        |
+| ARM      | 2019-10-01         | /subscriptions/`subscriptionId`/providers/Microsoft.PolicyInsights/policyStates/latest/summarize                                       |
+| ARM      | 2022-07-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Network/locations/`location`/availablePrivateEndpointTypes                         |
+| ARM      | 2022-05-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Network/privateEndpoints                                                           |
+| ARM      | 2022-05-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Network/virtualNetworks                                                            |
+| ARM      | 2020-06-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Resources/tags/default                                                             |
+| ARM      | 2018-06-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Security/pricings                                                                  |
+| ARM      | 2020-01-01         | /subscriptions/`subscriptionId`/providers/Microsoft.Security/securescores                                                              |
+| ARM      | 2020-01-01-preview | /subscriptions/`subscriptionId`/providers/Microsoft.Security/securityContacts                                                          |
+| ARM      | 2019-10-01         | /subscriptions/`subscriptionId`/providers                                                                                              |
+| ARM      | 2021-04-01         | /subscriptions/`subscriptionId`/resourcegroups                                                                                         |
+| ARM      | 2021-04-01         | /subscriptions/`subscriptionId`/resources                                                                                              |
+| ARM      | 2020-01-01         | /subscriptions                                                                                                                         |
+| ARM      | 2020-01-01         | /tenants                                                                                                                               |
 
 ## Integrate with AzOps
 
@@ -564,6 +600,8 @@ You can integrate AzGovViz (same project as AzOps).
 ```
 
 ## Integrate PSRule for Azure
+
+__Pausing 'PSRule for Azure' integration__. AzGovViz leveraged the Invoke-PSRule cmdlet, but there are certain [resource types](https://github.com/Azure/PSRule.Rules.Azure/blob/ab0910359c1b9826d8134041d5ca997f6195fc58/src/PSRule.Rules.Azure/PSRule.Rules.Azure.psm1#L1582) where also child resources need to be queried to achieve full rule evaluation.
 
 Let´s use [PSRule for Azure](https://azure.github.io/PSRule.Rules.Azure) and leverage over 260 pre-built rules to validate Azure resources based on the Microsoft Well-Architected Framework (WAF) principles.  
 PSRule for Azure is listed as [security monitoring tool](https://docs.microsoft.com/en-us/azure/architecture/framework/security/monitor-tools) in the Microsoft Well-Architected Framework.
@@ -653,6 +691,9 @@ Thank you for your support!
 
 AzGovViz creates very detailed information about your Azure Governance setup. In your organization's best interest the __outputs should be protected from not authorized access!__
 
+Azure Defender for Cloud may alert AzGovViz resource queries as suspicious activity:  
+![alt text](img/azgvz_MDfC_securityAlert.png "Microsoft defender for Cloud security alert") 
+
 ## Known issues
 
 Working with Git and Windows cloning from your AzDO repository you may experience the following error:
@@ -696,7 +737,9 @@ Kudos to [LorDOniX](https://github.com/LorDOniX/json-viewer) for JSON-viewer!
 
 Kudos to Bernie White and [PSRule for Azure](https://azure.github.io/PSRule.Rules.Azure) team!
 
-Kudos to Dolev Shor for [Azure Orphan Resources - GitHub](https://github.com/dolevshor/azure-orphan-resources) _ARG queries and workbooks_!
+Kudos to @dolevshor for [Azure Orphan Resources - GitHub](https://github.com/dolevshor/azure-orphan-resources) _ARG queries and workbooks_!
+
+Kudos to @ElanShudnow for [AzSubnetAvailability - GitHub](https://github.com/ElanShudnow/AzureCode/tree/main/PowerShell/AzSubnetAvailability)
 
 ## AzAdvertizer
 
