@@ -1,0 +1,46 @@
+Name                                  Id                                   TenantId                             State
+----                                  --                                   --------                             -----
+Access to Azure Active Directory      043135c7-a28c-439c-9f57-b0bc028c97c4 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR Virtual Desktop                   0a4b887d-e57f-4859-9e50-1ae8e9f3bad9 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR SNOW                              0d66c8d0-1e1c-4b12-9335-db3aae9c54e0 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      21f69ffb-026f-40b9-b386-d73e478749e8 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR DCO SWF                           22b1e3f0-cf31-44aa-8dba-d967142de92f b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR Development                       3a325a9f-5aad-4047-9d95-2eaaeea3cba2 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Visual Studio Enterprise              3d94780e-cc03-49bf-bdf6-47944a99ec30 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      3f15d67a-397c-4f75-8328-bb8d82fe34c0 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR JPE-SR                            4029e92b-edb2-49e3-ae15-be4179eba5fc b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+CNRA ExpressRoute                     4503a2db-f7f8-4f62-814f-b4171b0d126c b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR Production                        49d9457a-881f-410e-8602-972a2873ffa9 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      4d9c0da8-b745-4136-8069-69d7d7fcbad7 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      56ed503c-37a3-40ae-957c-42579a6fa58d b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      5e2d37ab-772e-4d4f-ab35-5cddd9d643ca b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      6bb19d6e-bc59-44e7-8609-f117c448d17a b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      6e1e20ae-a8e2-4e0c-ae86-09628910b962 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Azure subscription 1                  75ab42e1-2556-43ee-8e5f-171436894fd0 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+EnergySafety                          7fb64c99-1f23-4bad-a9c2-9653c039fd4d b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+CNRA ExpressRoute1                    8b1f8555-c50f-4871-ba3c-b7210884f6c3 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR Lab Dev                           8cb1bda3-dd12-4113-a7cf-06f17e462a05 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Visual Studio Enterprise Subscription 9a0baa41-9585-4663-8f78-4cc8d5ce09b7 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      9b2b85e8-1ede-4c36-8967-116dbdee3452 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR O&M Water Operations              abbcc98d-0ffd-4015-8ba9-382f1228051c b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Pay-As-You-Go                         accc329d-2069-4518-9c5d-234271222e23 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+CNRA CKAN Federation                  acfd7846-0fbf-415d-87ca-5a15a35450ba b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Visual Studio Enterprise Subscription add7cd1c-9cfe-435d-9a74-ad7d1286f8d3 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR TWRFP                             af595c48-0bcb-427a-8522-c6188dac05a2 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR DOP-MVP                           b99472d4-fe59-44e0-9910-173b937b140e b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+CNRA                                  be77585a-371e-408b-9035-939e0b1724ce b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR BDO                               c15db114-26b5-454c-b8f4-8a5eb5f16796 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR Lab Prod                          c7dd4bf2-672c-42c5-bfa9-52ed4bcb20c6 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      d1edc80e-0490-410f-b688-40317dd1ef22 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWRStreaming(Converted to EA)         d39d4845-91b0-4a3b-b814-71b2074ef9fd b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      d4967201-47a9-430f-995e-03c674d4686a b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      dfd7fe83-23fc-4e37-927f-389d14d122cb b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      e627fc65-da23-4458-bb70-4990be0a8a6f b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      eb9c436a-c984-4342-9fb2-674d2f513d29 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      ecc72c89-9609-49be-a092-bb1dba2afe85 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR O&M Uptake                        f00bf5e6-f306-4e6d-a4bf-4a0af317da1b b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+Access to Azure Active Directory      f932486f-5a17-4a60-bb2d-ec8ac45acf0e b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+DWR SGMO                              fd19207d-fdce-4e76-a846-8d5bf2b9b144 b71d5652-4b83-4257-afcd-7fd177884564 Enabled
+
+
+select-AzSubscription -Subscription 49d9457a-881f-410e-8602-972a2873ffa9  -Tenant b71d5652-4b83-4257-afcd-7fd177884564
